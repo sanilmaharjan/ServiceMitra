@@ -1,10 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
+import "../styles/Navbar.css";
 
 const Navbar = () => {
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <nav className="navbar navbar-expand-lg custom-navbar">
       <div className="container">
         <Link className="navbar-brand d-flex align-items-center" to="/">
           <img
@@ -32,17 +33,17 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarContent">
           <ul className="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
             <li className="nav-item">
-              <Link className="nav-link" to="/">
+              <Link className="nav-link custom-nav-link" to="/">
                 Home
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/about">
+              <Link className="nav-link custom-nav-link" to="/about">
                 About Us
               </Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/contact">
+              <Link className="nav-link custom-nav-link" to="/contact">
                 Contact
               </Link>
             </li>
