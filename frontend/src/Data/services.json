@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title": "House Cleaning",
+    "description": "Deep cleaning, dusting, mopping, and organizing for your home.",
+    "image": "/housecleaning.jpg"
+  },
+  {
+    "id": 2,
+    "title": "Electrician",
+    "description": "Wiring, appliance installations, and quick electrical repairs.",
+    "image": "/electrician.jpg"
+  },
+  {
+    "id": 3,
+    "title": "Plumbing Services",
+    "description": "Fixing leaks, unclogging drains, and pipe installations.",
+    "image": "/plumber.jpg"
+  },
+  {
+    "id": 4,
+    "title": "Wall Painting",
+    "description": "Interior and exterior painting, touch-ups, and waterproofing.",
+    "image": "/painting.jpg"
+  }
+]

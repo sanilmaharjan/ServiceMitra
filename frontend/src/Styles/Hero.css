@@ -1,0 +1,83 @@
+.hero-section {
+  background: linear-gradient(135deg, #ffffff 0%, #fdf5f0 50%, #fae5d8 100%);
+  padding: 6rem 0;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+.hero-heading {
+  color: #143d59;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+.text-brand-orange {
+  color: #f46b35;
+}
+
+.btn-brand-orange {
+  background-color: #f46b35 !important;
+  color: white !important;
+  border: 2px solid #f46b35 !important;
+  box-shadow: 0 8px 25px rgba(244, 107, 53, 0.4) !important;
+  transition: all 0.3s ease;
+}
+.btn-brand-orange:hover {
+  background-color: #d95a2b !important;
+  border-color: #d95a2b !important;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(244, 107, 53, 0.5) !important;
+}
+
+.btn-outline-navy {
+  background-color: #ffffff !important;
+  color: #143d59 !important;
+  border: 2px solid #143d59 !important;
+  box-shadow: 0 8px 25px rgba(20, 61, 89, 0.15) !important;
+  transition: all 0.3s ease;
+}
+.btn-outline-navy:hover {
+  background-color: #143d59 !important;
+  color: white !important;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(20, 61, 89, 0.25) !important;
+}
+
+.popular-tag {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+.popular-tag:hover {
+  background-color: #f46b35 !important;
+  color: white !important;
+  border-color: #f46b35 !important;
+  transform: translateY(-2px);
+}
+
+.hero-image-wrapper {
+  position: relative;
+  display: inline-block;
+}
+.hero-person-img {
+  width: 420px;
+  height: 420px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 8px solid #ffffff;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 991px) {
+  .hero-person-img {
+    width: 300px;
+    height: 300px;
+    margin-top: 3rem;
+  }
+  .hero-section {
+    text-align: center;
+    padding: 4rem 0;
+  }
+  .d-flex.gap-3 {
+    justify-content: center;
+  }
+}

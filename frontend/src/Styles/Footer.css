@@ -1,0 +1,21 @@
+.custom-footer {
+  background-color: #143d59 !important;
+  color: #ffffff !important;
+  margin-top: auto;
+}
+.footer-text {
+  color: #cbd5e1 !important;
+  line-height: 1.6;
+}
+.footer-link {
+  color: #cbd5e1 !important;
+  text-decoration: none;
+  transition: color 0.3s ease-in-out;
+}
+.footer-link:hover {
+  color: #f46b35 !important;
+}
+.footer-divider {
+  border-color: #2a5a7d !important;
+  opacity: 1;
+}

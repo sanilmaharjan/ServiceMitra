@@ -1,0 +1,23 @@
+.custom-navbar {
+  background-color: #ffffff !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+.custom-nav-link {
+  font-weight: 600;
+  color: #143d59 !important;
+  transition: color 0.3s ease-in-out;
+}
+.custom-nav-link:hover {
+  color: #f46b35 !important;
+}
+.btn-brand-orange-nav {
+  background-color: #f46b35;
+  color: #ffffff;
+  border: 2px solid #f46b35;
+  font-weight: 500;
+  transition: all 0.3s ease-in-out;
+}
+.btn-brand-orange-nav:hover {
+  background-color: transparent;
+  color: #f46b35;
+}
