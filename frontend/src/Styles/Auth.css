@@ -210,21 +210,80 @@
 }
 
 /* ─────────────────────────────────────────
-   CATEGORY SELECT
+   SERVICE CHECKBOXES
 ───────────────────────────────────────── */
-.auth-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236c757d' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  padding-right: 2.5rem;
-  cursor: pointer;
-  color: #495057;
+.service-checkbox-group {
+  margin-bottom: 0.85rem;
 }
 
-.auth-select option[value=""] {
-  color: #adb5bd;
+.service-checkbox-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.5rem;
+}
+
+.service-checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+}
+
+.service-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #f4f7fb;
+  font-size: 0.875rem;
+  color: #495057;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+  user-select: none;
+}
+
+.service-checkbox-item:hover {
+  border-color: #143d59;
+  background: #eaf0f6;
+  color: #143d59;
+}
+
+.service-checkbox-item.checked {
+  border-color: #143d59;
+  background: linear-gradient(135deg, #143d59, #1e5a80);
+  color: #ffffff;
+}
+
+/* Hide native checkbox, use custom span */
+.service-checkbox-item input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 2px solid currentColor;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.service-checkbox-item.checked .checkbox-icon::after {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 9px;
+  border: 2px solid #ffffff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg) translate(-1px, -1px);
 }
 
 /* ─────────────────────────────────────────

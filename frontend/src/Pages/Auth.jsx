@@ -2,24 +2,23 @@ import React, { useState } from "react";
 import "../styles/Auth.css";
 
 const serviceCategories = [
-  "Plumbing",
-  "Electrical",
-  "Carpentry",
   "Cleaning",
+  "Plumbing",
+  "Electrical Appliance Repairing",
+  "Servicing",
   "Painting",
-  "Landscaping",
-  "HVAC / AC Repair",
-  "Appliance Repair",
-  "Pest Control",
-  "Tutoring",
-  "Beauty & Wellness",
-  "Other",
 ];
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState("client");       // "client" | "provider"
-  const [category, setCategory] = useState("");
+  const [categories, setCategories] = useState([]);
+
+  const toggleCategory = (cat) => {
+    setCategories((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+    );
+  };
 
   return (
     <div className="auth-container">
@@ -47,7 +46,7 @@ const Auth = () => {
               <button
                 type="button"
                 className={`role-btn ${role === "client" ? "role-active" : ""}`}
-                onClick={() => { setRole("client"); setCategory(""); }}
+                onClick={() => { setRole("client"); setCategories([]); }}
               >
                 Client
               </button>
@@ -66,19 +65,25 @@ const Auth = () => {
             <input type="password" placeholder="Password" className="auth-input" required />
             <input type="password" placeholder="Confirm Password" className="auth-input" required />
 
-            {/* Category — only for service providers */}
+            {/* Services — only for service providers */}
             {role === "provider" && (
-              <select
-                className="auth-input auth-select"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                required
-              >
-                <option value="" disabled>Select Service Category</option>
-                {serviceCategories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+              <div className="service-checkbox-group">
+                <p className="service-checkbox-label">Select Services Offered</p>
+                <div className="service-checkbox-grid">
+                  {serviceCategories.map((cat) => (
+                    <label key={cat} className={`service-checkbox-item ${categories.includes(cat) ? "checked" : ""}`}>
+                      <input
+                        type="checkbox"
+                        value={cat}
+                        checked={categories.includes(cat)}
+                        onChange={() => toggleCategory(cat)}
+                      />
+                      <span className="checkbox-icon"></span>
+                      {cat}
+                    </label>
+                  ))}
+                </div>
+              </div>
             )}
 
             <button type="submit" className="btn-solid">SIGN UP</button>
