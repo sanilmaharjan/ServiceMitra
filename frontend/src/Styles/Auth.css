@@ -1,0 +1,321 @@
+/* ─────────────────────────────────────────
+   PAGE WRAPPER
+───────────────────────────────────────── */
+.auth-container {
+  min-height: calc(100vh - 160px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 3rem 1rem;
+  background: #f0f4f8;
+}
+
+/* ─────────────────────────────────────────
+   CARD  — height driven by content
+───────────────────────────────────────── */
+.auth-card {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  /* NO fixed height — card grows to fit the taller panel */
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  background: #ffffff;
+  /* Grid: both panels stack in the same cell so the card is as tall as the tallest one */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+/* ─────────────────────────────────────────
+   FORM PANELS — grid children, not absolute
+───────────────────────────────────────── */
+.auth-form-panel {
+  /* Both panels sit in their own grid column */
+  padding: 2.5rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #ffffff;
+  transition: transform 0.65s cubic-bezier(0.77, 0, 0.18, 1),
+              opacity  0.65s ease;
+  /* Panels overlap via grid stacking on the SAME column (set per panel below) */
+  grid-row: 1;
+  z-index: 1;
+}
+
+/* Login panel occupies column 2 (right side) */
+.login-panel {
+  grid-column: 2;
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Register panel occupies column 1 (left side) */
+.register-panel {
+  grid-column: 1;
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Active states (toggled by .login-mode / .register-mode on card) ── */
+
+/* In register mode: slide login form OUT to the right */
+.register-mode .login-panel {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* In register mode: slide register form IN from the left */
+.register-mode .register-panel {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ─────────────────────────────────────────
+   OVERLAY WRAPPER  (slides between halves)
+───────────────────────────────────────── */
+.auth-overlay-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  z-index: 2;
+  transition: transform 0.65s cubic-bezier(0.77, 0, 0.18, 1);
+}
+
+/* In register mode, shift overlay to RIGHT half */
+.register-mode .auth-overlay-wrapper {
+  transform: translateX(100%);
+}
+
+.auth-overlay-panel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #143d59 0%, #f46b35 100%);
+}
+
+.overlay-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 2.5rem;
+  color: #ffffff;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.overlay-content h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.overlay-content p {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+/* ─────────────────────────────────────────
+   FORM TYPOGRAPHY
+───────────────────────────────────────── */
+.auth-form-panel h2 {
+  color: #143d59;
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.auth-form-panel p {
+  color: #6c757d;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* ─────────────────────────────────────────
+   INPUTS
+───────────────────────────────────────── */
+.auth-input {
+  display: block;
+  width: 100%;
+  background-color: #f4f7fb;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.85rem;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: #143d59;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(20, 61, 89, 0.1);
+}
+
+/* ─────────────────────────────────────────
+   ROLE TOGGLE  (Client / Service Provider)
+───────────────────────────────────────── */
+.role-toggle {
+  display: flex;
+  gap: 0.5rem;
+  background: #f4f7fb;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 0.85rem;
+}
+
+.role-btn {
+  flex: 1;
+  padding: 0.55rem 0;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, box-shadow 0.25s;
+}
+
+.role-btn.role-active {
+  background: linear-gradient(135deg, #143d59, #1e5a80);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(20, 61, 89, 0.25);
+}
+
+.role-btn:not(.role-active):hover {
+  background: #e8edf3;
+  color: #143d59;
+}
+
+/* ─────────────────────────────────────────
+   CATEGORY SELECT
+───────────────────────────────────────── */
+.auth-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236c757d' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  color: #495057;
+}
+
+.auth-select option[value=""] {
+  color: #adb5bd;
+}
+
+/* ─────────────────────────────────────────
+   FORGOT LINK
+───────────────────────────────────────── */
+.forgot-link {
+  text-align: right;
+  margin-bottom: 0.5rem;
+}
+.forgot-link a {
+  font-size: 0.85rem;
+  color: #f46b35;
+  text-decoration: none;
+}
+.forgot-link a:hover {
+  text-decoration: underline;
+}
+
+/* ─────────────────────────────────────────
+   BUTTONS
+───────────────────────────────────────── */
+.btn-ghost {
+  background: transparent;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+  border-radius: 50px;
+  padding: 0.6rem 2.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s, transform 0.2s;
+}
+
+.btn-ghost:hover {
+  background: #ffffff;
+  color: #143d59;
+  transform: translateY(-2px);
+}
+
+.btn-solid {
+  display: block;
+  width: 100%;
+  background: linear-gradient(135deg, #f46b35, #d95a2b);
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.85rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  margin-top: 0.5rem;
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.2s, box-shadow 0.3s;
+  box-shadow: 0 4px 14px rgba(244, 107, 53, 0.35);
+}
+
+.btn-solid:hover {
+  opacity: 0.92;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(244, 107, 53, 0.4);
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE — stack vertically on mobile
+───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .auth-card {
+    height: auto;
+    min-height: unset;
+  }
+
+  .auth-overlay-wrapper {
+    display: none;           /* hide the overlay on mobile */
+  }
+
+  .auth-form-panel {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 2.5rem 1.75rem;
+    transform: none !important;
+    opacity: 1 !important;
+    pointer-events: all !important;
+  }
+
+  /* On mobile show only the active form */
+  .login-panel { display: flex; }
+  .register-panel { display: none; }
+
+  .register-mode .login-panel { display: none; }
+  .register-mode .register-panel { display: flex; }
+
+}

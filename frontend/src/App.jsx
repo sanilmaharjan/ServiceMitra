@@ -3,7 +3,9 @@ import { Routes, Route } from "react-router-dom";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import Index from "./Pages/Index";
+import Auth from "./Pages/Auth";
 
+// Placeholder components so routing doesn't break
 const About = () => (
   <div className="container py-5 text-center">
     <h2>About Us</h2>
@@ -19,15 +21,17 @@ function App() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Navbar />
-      <main className="flex-grow-1">
+      <main className="flex-grow-1 bg-light">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Auth />} />
         </Routes>
       </main>
       <Footer />
     </div>
   );
 }
+
 export default App;

@@ -45,9 +45,12 @@ const Navbar = () => {
               </Link>
             </li>
             <li className="nav-item ms-lg-3 mt-3 mt-lg-0">
-              <button className="btn btn-primary px-4 rounded-pill">
+              <Link
+                to="/login"
+                className="btn btn-primary px-4 rounded-pill text-decoration-none"
+              >
                 Sign Up
-              </button>
+              </Link>
             </li>
           </ul>
         </div>
