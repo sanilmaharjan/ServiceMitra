@@ -12,7 +12,7 @@ class CustomUser(models.Model):
     )
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='custom_user')
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='client')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='client')
 
     name = models.CharField(max_length=255)
     phone = models.CharField(max_length=15)
