@@ -63,9 +63,3 @@ class ProviderProfile(models.Model):
         status = "Verified" if self.is_verified else "Pending"
         return f"{self.business_name} - {status}"
 
-
-
-@receiver(post_save, sender=CustomUser)
-def create_provider_profile(sender, instance, created, **kwargs):
-    if created and instance.role == 'provider':
-        ProviderProfile.objects.create(custom_user=instance)
