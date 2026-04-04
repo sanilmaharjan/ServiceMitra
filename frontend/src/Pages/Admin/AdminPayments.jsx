@@ -1,36 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
-
-const MOCK_UNPAID_PROVIDERS = [
-  { id: 101, name: "Ramesh Sharma", avatar: "RS", category: "Electrical", location: "Kathmandu", rating: 4.8, balance: 12500, lastWork: "2 days ago" },
-  { id: 102, name: "Sita Kumari", avatar: "SK", category: "Cleaning", location: "Lalitpur", rating: 4.5, balance: 4200, lastWork: "5 days ago" },
-  { id: 103, name: "Bikram Thapa", avatar: "BT", category: "Painting", location: "Bhaktapur", rating: 4.2, balance: 18000, lastWork: "1 week ago" },
-  { id: 104, name: "Maya Adhikari", avatar: "MA", category: "Plumbing", location: "Kathmandu", rating: 4.6, balance: 9500, lastWork: "3 days ago" },
-];
+import api from "../../utils/api";
+import adminApi from "../../utils/adminApi";
 
 export default function AdminPayments() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
   
-  // State for the selected provider (if we're on the payment form page)
-  const [selectedProvider, setSelectedProvider] = React.useState(() => {
-    if (location.state?.provider) return location.state.provider;
-    if (id) {
-        return MOCK_UNPAID_PROVIDERS.find(p => p.id === Number(id)) || null;
-    }
-    return null;
-  });
+  const [unpaidProviders, setUnpaidProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
   
-  // Payment Form States
+  const [selectedProvider, setSelectedProvider] = React.useState(null);
+  
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("bank");
   const [note, setNote] = useState("");
   const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState({});
+  const [recentPayments, setRecentPayments] = useState([]);
+
+  useEffect(() => {
+    fetchPayoutData();
+  }, []);
+
+  const fetchPayoutData = async () => {
+    try {
+      setLoading(true);
+      const [pendingRes, recentRes] = await Promise.all([
+        adminApi.getPendingPayouts(),
+        adminApi.getRecentPayouts()
+      ]);
+      setUnpaidProviders(pendingRes.data || []);
+      setRecentPayments(recentRes.data || []);
+
+      if (id) {
+        const found = pendingRes.data.find(p => p.id === Number(id));
+        if (found) setSelectedProvider(found);
+      } else if (location.state?.provider) {
+        setSelectedProvider(location.state.provider);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const validate = () => {
     const e = {};
@@ -39,16 +57,28 @@ export default function AdminPayments() {
     return e;
   };
 
-  const handlePay = (e) => {
+  const handlePay = async (e) => {
     e.preventDefault();
     const e2 = validate();
     if (Object.keys(e2).length) { setErrors(e2); return; }
     setErrors({});
-    setLoading(true);
-    setTimeout(() => { 
-      setLoading(false); 
+    
+    try {
+      setIsProcessing(true);
+      await adminApi.createPayout({
+        provider_id: selectedProvider.id,
+        amount: Number(amount),
+        method,
+        note
+      });
       setSuccess(true);
-    }, 1500);
+      alert("Payment authorized successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to authorize payment.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const paymentMethods = [
@@ -58,13 +88,8 @@ export default function AdminPayments() {
     { value: "cash", label: "Cash", icon: "💵" },
   ];
 
-  const recentPayments = [
-    { date: "Mar 28, 2025", name: "Sunil Shrestha", amount: 12000, method: "eSewa", status: "completed" },
-    { date: "Feb 14, 2025", name: "Ramesh Sharma", amount: 8500, method: "Bank Transfer", status: "completed" },
-    { date: "Jan 30, 2025", name: "Anita Rai", amount: 9800, method: "Khalti", status: "completed" },
-  ];
+  if (loading) return <div className="admin-layout"><AdminNavbar /><main className="admin-main">Loading payout data...</main></div>;
 
-  // --- Render Unpaid List ---
   if (!selectedProvider && !id) {
     return (
       <div className="admin-layout animate-fade">
@@ -89,30 +114,34 @@ export default function AdminPayments() {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_UNPAID_PROVIDERS.map((p) => (
-                  <tr key={p.id} className="admin-table-row">
-                    <td>
-                      <div className="admin-user-cell">
-                        <div className="admin-avatar-sm" style={{background: 'var(--sm-navy)'}}>{p.avatar}</div>
-                        <div>
-                          <div className="admin-user-name">{p.name}</div>
-                          <div className="admin-user-email">⭐ {p.rating}</div>
+                {unpaidProviders.length === 0 ? (
+                  <tr><td colSpan={5} className="admin-empty">No pending payouts.</td></tr>
+                ) : (
+                  unpaidProviders.map((p) => (
+                    <tr key={p.id} className="admin-table-row">
+                      <td>
+                        <div className="admin-user-cell">
+                          <div className="admin-avatar-sm" style={{background: 'var(--sm-navy)'}}>{p.avatar}</div>
+                          <div>
+                            <div className="admin-user-name">{p.name}</div>
+                            <div className="admin-user-email">⭐ {p.rating}</div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td>{p.category}</td>
-                    <td className="admin-td-muted">{p.lastWork}</td>
-                    <td>
-                      <strong style={{color: 'var(--sm-success)'}}>NRS {(p.balance ?? 0).toLocaleString()}</strong>
-                    </td>
-                    <td>
-                      <button className="sm-btn sm-btn-primary" style={{padding: '0.4rem 1rem', fontSize: '0.75rem'}} 
-                        onClick={() => setSelectedProvider(p)}>
-                        Send Payment
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td>{p.category}</td>
+                      <td className="admin-td-muted">{p.lastWork}</td>
+                      <td>
+                        <strong style={{color: 'var(--sm-success)'}}>NRS {(p.balance ?? 0).toLocaleString()}</strong>
+                      </td>
+                      <td>
+                        <button className="sm-btn sm-btn-primary" style={{padding: '0.4rem 1rem', fontSize: '0.75rem'}} 
+                          onClick={() => setSelectedProvider(p)}>
+                          Send Payment
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -149,7 +178,6 @@ export default function AdminPayments() {
     );
   }
 
-  // --- Render Payment Form ---
   return (
     <div className="admin-layout animate-fade">
       <AdminNavbar 

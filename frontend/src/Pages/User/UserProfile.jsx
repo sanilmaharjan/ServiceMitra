@@ -1,29 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import UserNavbar from "../../Components/UserNavbar";
 import "../../Styles/User.css";
-
-const USER_NAME = "Aarav Sharma";
-
-const initialProfile = {
-  name: "Aarav Sharma",
-  email: "aarav@email.com",
-  phone: "+977-9801234567",
-  location: "Kathmandu, Nepal",
-  bio: "Regular user of ServiceMitra. I frequently hire service professionals for home maintenance.",
-};
+import { AuthContext } from "../../context/authContext";
+import api from "../../utils/api";
+import authApi from "../../utils/authApi";
 
 export default function UserProfile() {
-  const navigate = useNavigate();
-  const [profile, setProfile] = useState(initialProfile);
-  const [form, setForm]       = useState(initialProfile);
-  const [saved, setSaved]     = useState(false);
-  const initials = profile.name.split(" ").map(n => n[0]).join("").toUpperCase();
+  const { user, setUserData } = useContext(AuthContext);
+  const [profile, setProfile] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    bio: "",
+  });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    bio: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
 
-  const handleSave = () => {
-    setProfile(form);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await authApi.getProfile();
+      const data = response.data;
+      setProfile(data);
+      setForm(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const response = await authApi.updateProfile(form);
+      setProfile(response.data);
+      setUserData(response.data, localStorage.getItem("token"));
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+      alert("Profile updated successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update profile.");
+    }
   };
 
   const setField = (key, value) => {
@@ -31,6 +62,9 @@ export default function UserProfile() {
   };
 
   const changed = JSON.stringify(form) !== JSON.stringify(profile);
+  const initials = (form.name || "U").split(" ").map(n => n[0]).join("").toUpperCase();
+
+  const USER_NAME = user?.name || "User";
 
   return (
     <div className="user-layout animate-fade">

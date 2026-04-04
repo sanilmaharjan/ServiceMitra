@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import SPNavbar from "../../Components/SPNavbar";
 import Footer from "../../Components/Footer";
 import "../../Styles/Global.css";
+import { AuthContext } from "../../context/authContext";
+import api from "../../utils/api";
 
 export default function SPKYC() {
+  const { user } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     citizenshipNumber: "",
     licenseNumber: "",
@@ -26,7 +29,7 @@ export default function SPKYC() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState(null); // 'success' or 'error'
+  const [status, setStatus] = useState(null); 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,17 +40,35 @@ export default function SPKYC() {
     setFiles(prev => ({ ...prev, [field]: e.target.files[0] }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simulate backend submission for now as requested
-    setTimeout(() => {
+    setStatus(null);
+
+    const submissionData = new FormData();
+    Object.keys(formData).forEach(key => {
+      submissionData.append(key, formData[key]);
+    });
+    Object.keys(files).forEach(key => {
+      if (files[key]) {
+        submissionData.append(key, files[key]);
+      }
+    });
+
+    try {
+      await api.post("/provider/kyc", submissionData);
       setLoading(false);
       setStatus("success");
-      console.log("KYC Data ready for submission:", formData, files);
-    }, 2000);
+      alert("KYC documents submitted successfully!");
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      setStatus("error");
+      alert("Failed to submit KYC documents. Please try again.");
+    }
   };
+
+  const PROVIDER_NAME = user?.name || "Provider";
 
   return (
     <div className="d-flex flex-column min-vh-100 animate-fade">

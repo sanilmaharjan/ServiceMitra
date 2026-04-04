@@ -1,48 +1,23 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import UserNavbar from "../../Components/UserNavbar";
 import "../../Styles/User.css";
-
-const USER_NAME = "Aarav Sharma";
-const USER_INITIALS = "AS";
+import { AuthContext } from "../../context/authContext";
+import api from "../../utils/api";
+import jobsApi from "../../utils/jobsApi";
+import categoriesApi from "../../utils/categoriesApi";
 
 const CATEGORIES = [
   "Electrical", "Plumbing", "Painting", "Carpentry", "Cleaning",
   "Gardening", "Appliance Repair", "Electronics", "Beauty & Wellness", "Other",
 ];
 
-const INITIAL_POSTS = [
-  {
-    id: 1,
-    title: "Need AC Repair at Home",
-    description: "My AC unit is making a strange noise and not cooling properly. Need an experienced technician to diagnose and fix the issue. Located in Baneshwor.",
-    category: "Electrical",
-    budget: "1500 – 3000",
-    location: "Kathmandu, Baneshwor",
-    urgency: "urgent",
-    status: "open",
-    postedAt: "2 hours ago",
-    bidCount: 3,
-    images: [],
-  },
-  {
-    id: 2,
-    title: "Bathroom Plumbing – Complete Renovation",
-    description: "Looking for an expert plumber to renovate our master bathroom. Includes new pipe fitting, toilet and sink installation.",
-    category: "Plumbing",
-    budget: "8000 – 15000",
-    location: "Lalitpur, Patan",
-    urgency: "normal",
-    status: "bidding",
-    postedAt: "1 day ago",
-    bidCount: 7,
-    images: [],
-  },
-];
-
 export default function UserDashboard() {
   const navigate = useNavigate();
-  const fileRef = useRef(null);
+  const { user } = useContext(AuthContext);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -51,35 +26,60 @@ export default function UserDashboard() {
   const [budget, setBudget] = useState("");
   const [location, setLocation] = useState("");
   const [urgency, setUrgency] = useState("normal");
-  const [images, setImages] = useState([]);
   const [submitting, setSubmitting] = useState(false);
-  const [posts, setPosts] = useState(INITIAL_POSTS);
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+      const response = await jobsApi.getMyJobs();
+      setPosts(response.data || []);
+    } catch (err) {
+      setError("Failed to load your service requests.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const canPost = title.trim().length > 0 && description.trim().length > 0 && category;
 
-  const handlePost = () => {
+  const handlePost = async () => {
     if (!canPost) return;
-    setSubmitting(true);
-    setTimeout(() => {
-      const newPost = {
-        id: Date.now(),
+    try {
+      setSubmitting(true);
+      
+      const categories = await categoriesApi.getCategories();
+      const selectedCategory = categories.data?.find(c => c.name === category);
+      
+      const newJobData = {
         title: title.trim(),
         description: description.trim(),
-        category,
-        budget: budget || "Open to offers",
-        location: location || "Not specified",
-        urgency,
-        status: "open",
-        postedAt: "Just now",
-        bidCount: 0,
-        images: images.map((i) => i.url),
+        category: selectedCategory ? selectedCategory.id : 1,
+        budget: budget ? parseFloat(budget) : 0,
+        address: location || "Not specified",
+        city: location || "Not specified",
+        preferred_start_date: new Date().toISOString().split('T')[0],
+        preferred_deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       };
-      setPosts((prev) => [newPost, ...prev]);
-      setTitle(""); setDescription(""); setCategory(""); setBudget(""); setLocation(""); setUrgency("normal"); setImages([]);
+      const response = await jobsApi.createJob(newJobData);
+      setPosts((prev) => [response.data, ...prev]);
+      setTitle(""); setDescription(""); setCategory(""); setBudget(""); setLocation(""); setUrgency("normal");
       setIsOpen(false);
+      alert("Job posted successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to post job. Please try again.");
+    } finally {
       setSubmitting(false);
-    }, 800);
+    }
   };
+
+  const USER_NAME = user?.name || "User";
+  const USER_INITIALS = USER_NAME.split(" ").map(n => n[0]).join("").toUpperCase();
 
   return (
     <div className="user-layout animate-fade">

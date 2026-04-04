@@ -1,69 +1,109 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import UserNavbar from "../../Components/UserNavbar";
 import "../../Styles/User.css";
-
-const USER_NAME = "Aarav Sharma";
-const USER_INITIALS = "AS";
+import { AuthContext } from "../../context/authContext";
+import api from "../../utils/api";
+import jobsApi from "../../utils/jobsApi";
+import bidsApi from "../../utils/bidsApi";
 
 const CATEGORIES = [
   "Electrical","Plumbing","Painting","Carpentry","Cleaning",
   "Gardening","Appliance Repair","Electronics","Beauty & Wellness","Other",
 ];
 
-const MOCK_BIDS = [
-  {
-    id: 1,
-    amount: "NRS 2,000",
-    note: "I have 5 years of AC repair experience. Available today — can fix within 2 hours.",
-    placedAt: "2 hours ago",
-    status: "pending",
-    bidder: {
-      name: "Ramesh Electricals", initials: "RE",
-      category: "Electrician", rating: 4.8, jobs: 132,
-      location: "Kathmandu", phone: "+977-9801111111",
-      bio: "Professional electrician with 10+ years experience in residential and commercial work.",
-      skills: ["AC Repair","Wiring","Solar Setup","LED Installation"],
-    },
-  },
-  {
-    id: 2,
-    amount: "NRS 1,800",
-    note: "Certified for all major AC brands. Carry spare parts — no waiting for delivery.",
-    placedAt: "3 hours ago",
-    status: "pending",
-    bidder: {
-      name: "Tech Appliance Fix", initials: "TF",
-      category: "Appliance Repair", rating: 4.5, jobs: 67,
-      location: "Kathmandu", phone: "+977-9834444444",
-      bio: "Certified appliance technician specializing in all major brands.",
-      skills: ["AC Repair","Refrigerator","Washing Machine","Microwave"],
-    },
-  },
-];
-
 export default function UserPostDetail() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { id } = useParams();
-  const passedPost = location.state?.post;
+  const { user } = useContext(AuthContext);
 
-  const [post, setPost]               = useState(passedPost || null);
-  const [isEditing, setIsEditing]     = useState(false);
+  const [post, setPost] = useState(null);
+  const [bids, setBids] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [bids, setBids]               = useState(MOCK_BIDS);
-  const [viewBidder, setViewBidder]   = useState(null); // Modal state
+  const [viewBidder, setViewBidder] = useState(null);
 
-  // Edit form states
-  const [editTitle, setEditTitle]     = useState(post?.title || "");
-  const [editDesc, setEditDesc]       = useState(post?.description || "");
-  const [editCategory, setEditCategory] = useState(post?.category || "");
-  const [editUrgency, setEditUrgency] = useState(post?.urgency || "normal");
+  const [editTitle, setEditTitle] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editUrgency, setEditUrgency] = useState("normal");
+
+  useEffect(() => {
+    fetchPostDetails();
+  }, [id]);
+
+  const fetchPostDetails = async () => {
+    try {
+      setLoading(true);
+      const [postRes, bidsRes] = await Promise.all([
+        jobsApi.getJobById(id),
+        bidsApi.getJobBids(id)
+      ]);
+      setPost(postRes.data);
+      setBids(bidsRes.data || []);
+
+      setEditTitle(postRes.data.title);
+      setEditDesc(postRes.data.description);
+      setEditCategory(postRes.data.category);
+      setEditUrgency(postRes.data.urgency);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const updatedData = {
+        title: editTitle,
+        description: editDesc,
+        category: editCategory,
+        urgency: editUrgency
+      };
+      const response = await jobsApi.updateJobPartial(id, updatedData);
+      setPost(response.data);
+      setIsEditing(false);
+      alert("Post updated successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update post.");
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await jobsApi.deleteJob(id);
+      navigate("/user");
+      alert("Post removed successfully.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete post.");
+    }
+  };
+
+  const handleBidAction = async (bidId, action) => {
+    try {
+      if (action === 'accept') {
+        await bidsApi.acceptBid(bidId);
+      } else {
+        await bidsApi.rejectBid(bidId);
+      }
+      setBids(prev => prev.map(b => b.id === bidId ? { ...b, status: action === 'accept' ? 'accepted' : 'rejected' } : b));
+      alert(`Bid ${action}ed!`);
+    } catch (err) {
+      console.error(err);
+      alert(`Failed to ${action} bid.`);
+    }
+  };
+
+  if (loading) return <div className="user-layout"><UserNavbar userName={user?.name} /><main className="sm-container sm-section">Loading...</main></div>;
 
   if (!post) {
     return (
       <div className="user-layout">
-        <UserNavbar userName={USER_NAME} backTo="/user" />
+        <UserNavbar userName={user?.name || "User"} backTo="/user" />
         <main className="sm-container sm-section">
           <div className="sm-card animate-fade" style={{textAlign: 'center', padding: '4rem 2rem'}}>
             <div style={{fontSize: '3rem', marginBottom: '1rem'}}>🔍</div>
@@ -76,14 +116,7 @@ export default function UserPostDetail() {
     );
   }
 
-  const handleSave = () => {
-    setPost({ ...post, title: editTitle, description: editDesc, category: editCategory, urgency: editUrgency });
-    setIsEditing(false);
-  };
-
-  const handleBidAction = (bidId, action) => {
-    setBids(prev => prev.map(b => b.id === bidId ? { ...b, status: action } : b));
-  };
+  const USER_NAME = user?.name || "User";
 
   return (
     <div className="user-layout animate-fade">

@@ -1,41 +1,39 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import SPNavbar from "../../Components/SPNavbar";
 import "../../Styles/SP.css";
-
-const PROVIDER_NAME = "Ramesh Sharma";
-
-const provider = {
-  name: "Ramesh Sharma",
-  category: "Electrical & Plumbing",
-  location: "Kathmandu, Nepal",
-  memberSince: "Jan 2023",
-  bio: "Certified electrician and plumber with 8+ years experience. Specializing in AC repair, home wiring, and plumbing solutions. Reliable and high-quality service guaranteed.",
-  rating: 4.8,
-  totalReviews: 63,
-  completedJobs: 7,
-  earnings: "NRS 45,200",
-  skills: ["AC Installation", "Electrical Wiring", "Pipe Fitting", "Solar Setup", "Generator Repair"],
-  recentProjects: [
-    { title: "Solar Panel Installation", client: "Priya Lama", amount: "NRS 18,000", date: "Jan 2026" },
-    { title: "Full Electrical Rewiring", client: "Hotel Himalaya", amount: "NRS 12,500", date: "Feb 2026" },
-    { title: "Bathroom Plumbing Setup", client: "Rajan Pandey", amount: "NRS 7,200", date: "Mar 2026" },
-  ],
-  certifications: [
-    { title: "Certified Master Electrician", issuer: "CTEVT Nepal", year: "2018" },
-    { title: "Advanced Plumbing Certificate", issuer: "Skill Lab, Kathmandu", year: "2021" },
-    { title: "Safety Protocol Certified", issuer: "Labor Dept. of Nepal", year: "2022" },
-  ],
-  reviews: [
-    { id: 1, client: "Sunita Rai", rating: 5, comment: "Excellent work! Fixed my AC in under an hour. Very professional.", date: "March 2026" },
-    { id: 2, client: "Anita Shrestha", rating: 5, comment: "Came on time, fixed the pipe quickly.", date: "March 2026" },
-    { id: 3, client: "Bikram Thapa", rating: 4, comment: "Good quality work on the painting. Friendly professional.", date: "Feb 2026" },
-  ],
-};
+import { AuthContext } from "../../context/authContext";
+import api from "../../utils/api";
+import providerApi from "../../utils/providerApi";
 
 export default function SPPortfolio() {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  const [provider, setProvider] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPortfolio();
+  }, []);
+
+  const fetchPortfolio = async () => {
+    try {
+      setLoading(true);
+      const response = await providerApi.getPortfolio();
+      setProvider(response.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <div className="provider-layout"><SPNavbar providerName={user?.name} /><main className="sm-container sm-section">Loading your portfolio...</main></div>;
+
+  if (!provider) return <div className="provider-layout"><SPNavbar providerName={user?.name} /><main className="sm-container sm-section">Failed to load portfolio.</main></div>;
+
   const initials = provider.name.split(" ").map(n => n[0]).join("");
+  const PROVIDER_NAME = user?.name || "Provider";
 
   return (
     <div className="provider-layout animate-fade">

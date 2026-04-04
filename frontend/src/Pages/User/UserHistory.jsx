@@ -1,34 +1,63 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import UserNavbar from "../../Components/UserNavbar";
 import Footer from "../../Components/Footer";
 import "../../Styles/Global.css";
-
-const COMPLETED_JOBS = [
-  { id: 1, title: "AC Maintenance", provider: "Ramesh Sharma", date: "Apr 2, 2025", amount: 2500, status: "completed", review: null },
-  { id: 2, title: "Kitchen Deep Cleaning", provider: "Sita Kumari", date: "Mar 25, 2025", amount: 1800, status: "completed", review: { rating: 5, comment: "Excellent service!" } },
-  { id: 3, title: "Garden Fencing", provider: "Bikas Rai", date: "Mar 10, 2025", amount: 15000, status: "completed", review: null },
-];
+import { AuthContext } from "../../context/authContext";
+import api from "../../utils/api";
+import jobsApi from "../../utils/jobsApi";
+import reviewsApi from "../../utils/reviewsApi";
 
 export default function UserHistory() {
-  const [jobs, setJobs] = useState(COMPLETED_JOBS);
+  const { user } = useContext(AuthContext);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [reviewingJob, setReviewingJob] = useState(null);
 
-  // Review Form State
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
 
-  const handleSubmitReview = () => {
-    setJobs(prev => prev.map(j =>
-      j.id === reviewingJob.id
-        ? { ...j, review: { rating, comment, anonymous: isAnonymous } }
-        : j
-    ));
-    setReviewingJob(null);
-    setRating(0);
-    setComment("");
-    setIsAnonymous(false);
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  const fetchHistory = async () => {
+    try {
+      setLoading(true);
+      const response = await jobsApi.getJobHistory();
+      setJobs(response.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleSubmitReview = async () => {
+    try {
+      const reviewData = {
+        rating,
+        comment,
+      };
+      await reviewsApi.createReview(reviewingJob.id, reviewData);
+
+      setJobs(prev => prev.map(j =>
+        j.id === reviewingJob.id
+          ? { ...j, review: { rating, comment, anonymous: isAnonymous } }
+          : j
+      ));
+      setReviewingJob(null);
+      setRating(0);
+      setComment("");
+      setIsAnonymous(false);
+      alert("Review submitted successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to submit review.");
+    }
+  };
+
+  const USER_NAME = user?.name || "User";
 
   return (
     <div className="d-flex flex-column min-vh-100 animate-fade">

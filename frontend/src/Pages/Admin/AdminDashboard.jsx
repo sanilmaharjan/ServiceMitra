@@ -2,21 +2,41 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
-
-const mockStats = {
-  users: 128,
-  serviceProviders: 47,
-  pendingKYC: 12,
-  pendingPayments: 8,
-};
+import api from "../../utils/api";
+import adminApi from "../../utils/adminApi";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    users: 0,
+    serviceProviders: 0,
+    pendingKYC: 0,
+    pendingPayments: 0,
+  });
+  const [loading, setLoading] = useState(true);
   const [animatedStats, setAnimatedStats] = useState({
     users: 0, serviceProviders: 0, pendingKYC: 0, pendingPayments: 0,
   });
 
   useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const response = await adminApi.getStats();
+      const data = response.data;
+      setStats(data);
+      animateStats(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const animateStats = (targetStats) => {
     const duration = 1000;
     const steps = 40;
     const interval = duration / steps;
@@ -26,15 +46,14 @@ export default function AdminDashboard() {
       const progress = step / steps;
       const ease = 1 - Math.pow(1 - progress, 3);
       setAnimatedStats({
-        users: Math.round(mockStats.users * ease),
-        serviceProviders: Math.round(mockStats.serviceProviders * ease),
-        pendingKYC: Math.round(mockStats.pendingKYC * ease),
-        pendingPayments: Math.round(mockStats.pendingPayments * ease),
+        users: Math.round(targetStats.users * ease),
+        serviceProviders: Math.round(targetStats.serviceProviders * ease),
+        pendingKYC: Math.round(targetStats.pendingKYC * ease),
+        pendingPayments: Math.round(targetStats.pendingPayments * ease),
       });
       if (step >= steps) clearInterval(timer);
     }, interval);
-    return () => clearInterval(timer);
-  }, []);
+  };
 
   const cards = [
     { title: "Total Users", value: animatedStats.users, icon: "👥", route: "/admin/users", badge: "+12 week" },

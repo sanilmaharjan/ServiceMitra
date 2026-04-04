@@ -1,27 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import SPNavbar from "../../Components/SPNavbar";
 import "../../Styles/SP.css";
-
-const PROVIDER_NAME = "Ramesh Sharma";
-
-const INITIAL_BIDS = [
-  { id: 1, postTitle: "Need AC Repair at Home", client: "Sunita Rai", category: "Electrical", location: "Kathmandu, Baneshwor", myBid: 2000, budget: "1,500 – 3,000", placedAt: "2 hours ago", status: "pending", note: "I have 5 years of experience in AC repair. Can fix within 2 hours." },
-  { id: 2, postTitle: "Plumbing – Pipe Leakage Fix", client: "Anita Shrestha", category: "Plumbing", location: "Bhaktapur", myBid: 800, budget: "500 – 1,200", placedAt: "1 day ago", status: "accepted", note: "Experienced plumber available immediately." },
-  { id: 3, postTitle: "House Painting – 3BHK", client: "Bikram Thapa", category: "Painting", location: "Lalitpur, Patan", myBid: 18000, budget: "15,000 – 25,000", placedAt: "5 hours ago", status: "pending", note: "Professional painter with 8 years experience. Premium quality guaranteed." },
-];
+import { AuthContext } from "../../context/authContext";
+import api from "../../utils/api";
+import bidsApi from "../../utils/bidsApi";
 
 export default function SPBids() {
   const navigate = useNavigate();
-  const [bids, setBids]           = useState(INITIAL_BIDS);
-  const [filter, setFilter]       = useState("all");
+  const { user } = useContext(AuthContext);
+  const [bids, setBids] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("all");
 
-  const [editBid, setEditBid]     = useState(null); 
+  const [editBid, setEditBid] = useState(null); 
   const [editAmount, setEditAmount] = useState("");
-  const [editNote, setEditNote]   = useState("");
+  const [editNote, setEditNote] = useState("");
   const [withdrawId, setWithdrawId] = useState(null);
 
-  const filtered = filter === "all" ? bids : bids.filter(b => b.status === filter);
+  useEffect(() => {
+    fetchMyBids();
+  }, []);
+
+  const fetchMyBids = async () => {
+    try {
+      setLoading(true);
+      const response = await bidsApi.getMyBids();
+      setBids(response.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const openEdit = bid => {
     setEditBid(bid);
@@ -29,19 +40,39 @@ export default function SPBids() {
     setEditNote(bid.note);
   };
 
-  const handleEditSave = () => {
-    setBids(prev => prev.map(b =>
-      b.id === editBid.id
-        ? { ...b, myBid: Number(editAmount) || b.myBid, note: editNote || b.note }
-        : b
-    ));
-    setEditBid(null);
+  const handleEditSave = async () => {
+    try {
+      await bidsApi.updateBid(editBid.id, {
+        amount: Number(editAmount),
+        message: editNote
+      });
+      setBids(prev => prev.map(b =>
+        b.id === editBid.id
+          ? { ...b, myBid: Number(editAmount), note: editNote }
+          : b
+      ));
+      setEditBid(null);
+      alert("Bid updated successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update bid.");
+    }
   };
 
-  const handleWithdraw = () => {
-    setBids(prev => prev.filter(b => b.id !== withdrawId));
-    setWithdrawId(null);
+  const handleWithdraw = async () => {
+    try {
+      await bidsApi.deleteBid(withdrawId);
+      setBids(prev => prev.filter(b => b.id !== withdrawId));
+      setWithdrawId(null);
+      alert("Bid withdrawn.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to withdraw bid.");
+    }
   };
+
+  const filtered = filter === "all" ? bids : bids.filter(b => b.status === filter);
+  const PROVIDER_NAME = user?.name || "Provider";
 
   return (
     <div className="provider-layout animate-fade">

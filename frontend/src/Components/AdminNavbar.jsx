@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Styles/Admin.css";
+import { AuthContext } from "../context/authContext";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -9,15 +10,6 @@ function getGreeting() {
   return { text: "Good Evening", emoji: "🌙" };
 }
 
-/**
- * Props:
- *  - backTo       {string}   route to go back to (optional)
- *  - backLabel    {string}   label for back button (default "← Back")
- *  - pageIcon     {string}   emoji icon shown next to title (optional)
- *  - pageTitle    {string}   title shown in brand area when backTo is set
- *  - rightSlot    {node}     custom content for the right side (optional)
- *  - showLogout   {boolean}  show logout button (default false)
- */
 export default function AdminNavbar({
   backTo,
   onBack,
@@ -28,6 +20,7 @@ export default function AdminNavbar({
   showLogout = false,
 }) {
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
   const greeting = getGreeting();
 
   return (
@@ -61,7 +54,7 @@ export default function AdminNavbar({
         {(showLogout || (!backTo && !onBack)) && (
           <button
             className="admin-logout-btn"
-            onClick={() => navigate("/login")}
+            onClick={() => { logout(); navigate("/auth"); }}
           >
             Logout
           </button>
