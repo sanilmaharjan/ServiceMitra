@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useContext, useState } from "react";
 import "../styles/Auth.css";
+import { authContext, useUser } from "../context/authContext";
+import { redirect } from "react-router-dom";
 
 const serviceCategories = [
   "Cleaning",
@@ -10,11 +11,16 @@ const serviceCategories = [
   "Painting",
 ];
 
+const BACKEND_URL = "http://localhost:8000/api"
+
 const Auth = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState("client");
   const [categories, setCategories] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const userContext = useContext(authContext)
+  const {setUserData} = useContext()
 
   const toggleCategory = (cat) => {
     setCategories((prev) =>
@@ -22,6 +28,58 @@ const Auth = () => {
     );
   };
 
+  const handleSubmit = async(e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = JSON.stringify({
+      email : formData.get("email"),
+      password: formData.get("password")
+    })
+    console.log("data:", data)
+    try {
+      setIsSubmitting(true)
+      const response = await fetch(`${BACKEND_URL}/users/login`, {body : data, method: "POST"} )
+      if(!responseData.ok) {
+        alert("failed")
+      }
+
+      const responseData = await response.json()
+      setUserData(responseData.data.user)
+      redirect()
+
+
+      console.log("response Data: ", responseData)
+      alert("login integration success")
+    } catch (error) {
+      console.error("failed to login", error)
+    }
+    setIsSubmitting(false)
+  }
+
+ const handleSignUpHandle= async(e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target)
+    const data = JSON.stringify({
+      email : formData.get("email"),
+      password: formData.get("password"),
+      name: formData.get("fullName"),
+      phone: formData.get("phoneNumber"),
+      role: role ,
+      category_ids: [categories]
+
+    })
+    console.log("data:", data)
+    try {
+      setIsSubmitting(true)
+      const response = await fetch(`${BACKEND_URL}/users/register`, {body : data, method: "POST"} )
+      const responseData = await response.json()
+      console.log("response Data: ", responseData)
+      alert("login integration success")
+    } catch (error) {
+      console.error("failed to login", error)
+    }
+    setIsSubmitting(false)
+  }
   return (
     <div className="auth-container">
       <div className={`auth-card ${isLogin ? "login-mode" : "register-mode"}`}>
@@ -29,9 +87,9 @@ const Auth = () => {
         <div className="auth-form-panel login-panel">
           <h2>Sign In</h2>
           <p>Welcome back! Please sign in.</p>
-          <form onSubmit={(e) => { e.preventDefault(); navigate("/user"); }}>
-            <input type="email" placeholder="Email" className="auth-input" required />
-            <input type="password" placeholder="Password" className="auth-input" required />
+          <form onSubmit={handleSubmit}>
+            <input name="email" type="email" placeholder="Email" className="auth-input" required />
+            <input name="password" type="password" placeholder="Password" className="auth-input" required />
             <div className="forgot-link">
               <a href="#">Forgot password?</a>
             </div>
@@ -42,7 +100,7 @@ const Auth = () => {
         <div className="auth-form-panel register-panel">
           <h2>Create Account</h2>
           <p>Create your ServiceMitra account</p>
-          <form onSubmit={(e) => { e.preventDefault(); navigate("/user"); }}>
+          <form onSubmit={handleSignUpHandle}>
             {/* Role toggle */}
             <div className="role-toggle">
               <button
@@ -61,11 +119,11 @@ const Auth = () => {
               </button>
             </div>
 
-            <input type="text" placeholder="Full Name" className="auth-input" required />
-            <input type="email" placeholder="Email" className="auth-input" required />
-            <input type="tel" placeholder="Phone Number" className="auth-input" required />
-            <input type="password" placeholder="Password" className="auth-input" required />
-            <input type="password" placeholder="Confirm Password" className="auth-input" required />
+            <input name="fullName" type="text" placeholder="Full Name" className="auth-input" required />
+            <input name="email" type="email" placeholder="Email" className="auth-input" required />
+            <input name="phoneNumber" type="tel" placeholder="Phone Number" className="auth-input" required />
+            <input name="password" type="password" placeholder="Password" className="auth-input" required />
+            <input name="confirmPassword" type="password" placeholder="Confirm Password" className="auth-input" required />
 
             {/* Services — only for service providers */}
             {role === "provider" && (
@@ -75,6 +133,7 @@ const Auth = () => {
                   {serviceCategories.map((cat) => (
                     <label key={cat} className={`service-checkbox-item ${categories.includes(cat) ? "checked" : ""}`}>
                       <input
+                        name="serviceCheckbox"
                         type="checkbox"
                         value={cat}
                         checked={categories.includes(cat)}
