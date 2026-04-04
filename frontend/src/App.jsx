@@ -4,21 +4,8 @@ import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import Index from "./Pages/Index";
 import Auth from "./Pages/Auth";
-<<<<<<< HEAD
 import AboutUsDetails from "./Components/AboutUsDetail";
 import ContactPage from "./Components/CantactPage";
-=======
-import AdminDashboard from "./Pages/Admin/AdminDashboard";
-import AdminUsers from "./Pages/Admin/AdminUsers";
-import AdminServiceProviders from "./Pages/Admin/AdminServiceProviders";
-import ProviderPortfolio from "./Pages/Admin/ProviderPortfolio";
-import AdminPayments from "./Pages/Admin/AdminPayments";
-import AdminKYC from "./Pages/Admin/AdminKYC";
-import SPDashboard from "./Pages/ServiceProvider/SPDashboard";
-import SPPostList from "./Pages/ServiceProvider/SPPostList";
-import SPBids from "./Pages/ServiceProvider/SPBids";
-import SPPortfolio from "./Pages/ServiceProvider/SPPortfolio";
->>>>>>> 6b05289ec086ce23a69a69a177eb4d860fdc1ea7
 
 // Placeholder components so routing doesn't break
 const About = () => (
