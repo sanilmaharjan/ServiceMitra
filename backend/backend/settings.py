@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'categories',
     'jobs',
     'users',
+    'reviews',
+    'notification',
     'rest_framework',
     'corsheaders',
     
@@ -87,7 +89,7 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ),
 }
 
