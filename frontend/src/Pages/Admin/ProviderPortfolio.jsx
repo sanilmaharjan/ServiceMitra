@@ -1,58 +1,34 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
-
-const MOCK_PROVIDERS = [
-  { 
-    id: 1, name: "Ramesh Electricals", avatar: "RE", category: "Electrician", location: "Kathmandu", rating: 4.8, jobs: 132, status: "verified", earnings: 85000, 
-    joined: "Jan 12, 2024", bio: "Certified electrician with 10+ years of experience in residential and commercial wiring.", 
-    email: "ramesh@electricals.com", phone: "+977 9841234567", kyc: "verified",
-    skills: ["House Wiring", "Smart Home", "Industrial Wiring", "Repair"],
-    portfolio: [
-      { title: "Smart Home Installation", year: "2024", desc: "Complete home automation and smart lighting system setup." },
-      { title: "Industrial Wiring", year: "2023", desc: "Three-phase power installation for a small factory in Patan." }
-    ]
-  },
-  { 
-    id: 2, name: "Sunita Plumbing Works", avatar: "SP", category: "Plumber", location: "Lalitpur", rating: 4.6, jobs: 89, status: "verified", earnings: 62000, 
-    joined: "Feb 5, 2024", bio: "Expert in leakage detection and bathroom renovation projects.", 
-    email: "sunita@plumbing.com", phone: "+977 9801234567", kyc: "verified",
-    skills: ["Leakage Fix", "Pipe Fitting", "Bathroom Renovation", "Maintenance"],
-    portfolio: [
-      { title: "Hotel Bathroom Overhaul", year: "2024", desc: "Installed modern fixtures and piping for a boutique hotel." }
-    ]
-  },
-  { 
-    id: 3, name: "Bijay Painting Co.", avatar: "BP", category: "Painter", location: "Bhaktapur", rating: 4.9, jobs: 210, status: "verified", earnings: 120000, 
-    joined: "Nov 20, 2023", bio: "Specializing in texture painting and exterior weatherproofing.", 
-    email: "bijay@painting.com", phone: "+977 9812345678", kyc: "verified",
-    skills: ["Texture Paint", "Interior Design", "Weatherproofing", "Ceiling Design"],
-    portfolio: [
-      { title: "Heritage Building Restoration", year: "2024", desc: "Eco-friendly paint restoration for a historical site." }
-    ]
-  },
-  { 
-    id: 4, name: "Tech Appliance Fix", avatar: "TF", category: "Appliance Repair", location: "Kathmandu", rating: 4.5, jobs: 67, status: "pending", earnings: 34000, 
-    joined: "Mar 1, 2025", bio: "Quick and reliable repair service for all major home appliance brands.", 
-    email: "tech@fix.com", phone: "+977 9851234567", kyc: "pending",
-    skills: ["AC Repair", "Washing Machine", "Microwave", "Refrigerator"],
-    portfolio: []
-  },
-];
+import api from "../../utils/api";
 
 export default function ProviderPortfolio() {
   const navigate = useNavigate();
   const location = useLocation();
   const { id } = useParams();
   
-  const provider = React.useMemo(() => {
-    if (location.state?.provider) return location.state.provider;
-    if (id) {
-        return MOCK_PROVIDERS.find(p => p.id === Number(id)) || null;
+  const [provider, setProvider] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProviderDetails();
+  }, [id]);
+
+  const fetchProviderDetails = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/admin/providers/${id}`);
+      setProvider(response.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    return null;
-  }, [id, location.state]);
+  };
+
+  if (loading) return <div className="admin-layout"><AdminNavbar backTo="/admin/service-providers" /><main className="sm-container sm-section">Loading provider portfolio...</main></div>;
 
   if (!provider) {
     return (
@@ -124,7 +100,6 @@ export default function ProviderPortfolio() {
           </div>
 
           <div className="sm-grid" style={{alignContent: 'start'}}>
-            {/* --- Earnings & Payout --- */}
             <section className="sm-card" style={{background: 'var(--sm-navy-light)', border: 'none', marginBottom: '1.5rem'}}>
               <h3 style={{fontSize: '1rem', fontWeight: 700, color: 'var(--sm-navy)', marginBottom: '0.5rem'}}>Accumulated Earnings</h3>
               <div style={{fontSize: '2rem', fontWeight: 900, color: 'var(--sm-navy)', marginBottom: '1rem'}}>NRS {(provider.earnings || 0).toLocaleString()}</div>
@@ -133,7 +108,6 @@ export default function ProviderPortfolio() {
               </button>
             </section>
 
-            {/* --- Skills --- */}
             <section className="sm-card">
               <h3 style={{fontSize: '1rem', fontWeight: 700, color: 'var(--sm-navy)', marginBottom: '1rem'}}>Skills</h3>
               <div style={{display: 'flex', flexWrap: 'wrap', gap: '0.5rem'}}>
@@ -143,7 +117,6 @@ export default function ProviderPortfolio() {
               </div>
             </section>
 
-            {/* --- Contact Info --- */}
             <section className="sm-card" style={{marginTop: '1.5rem'}}>
               <h3 style={{fontSize: '1rem', fontWeight: 700, color: 'var(--sm-navy)', marginBottom: '1rem'}}>Verification & Contact</h3>
               <div style={{fontSize: '0.85rem', color: 'var(--sm-text-mid)'}}>

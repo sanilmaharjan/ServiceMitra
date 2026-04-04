@@ -1,8 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Auth.css";
-// import { authContext, useUser } from "../context/authContext";
-import { redirect } from "react-router-dom";
 import { AuthContext } from "../context/authContext";
+import api from "../utils/api";
+import categoriesApi from "../utils/categoriesApi";
 
 const serviceCategories = [
   "Cleaning",
@@ -12,15 +13,22 @@ const serviceCategories = [
   "Painting",
 ];
 
-const BACKEND_URL = "http://localhost:8000/api"
-
 const Auth = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState("client");
   const [categories, setCategories] = useState([]);
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const {setUserData}= useContext(AuthContext)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { user, token, setUserData } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (token && user && user.role) {
+      const timeout = setTimeout(() => {
+        handleRedirect(user.role);
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [user, token]);
 
   const toggleCategory = (cat) => {
     setCategories((prev) =>
@@ -28,61 +36,77 @@ const Auth = () => {
     );
   };
 
-  const handleSubmit = async(e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
-    const data = JSON.stringify({
-      email : formData.get("email"),
-      password: formData.get("password")
-    })
-    console.log("data:", data)
-    try {
-      setIsSubmitting(true)
-      const response = await fetch(`${BACKEND_URL}/users/login`, {body : data, method: "POST"} )
-      if(!responseData.ok) {
-        alert("failed")
-        return
-      }
+  const handleRedirect = (userRole) => {
+    if (userRole === "admin") navigate("/admin");
+    else if (userRole === "provider") navigate("/provider");
+    else navigate("/user");
+  };
 
-      const responseData = await response.json()
-      setUserData(responseData.data.user)
-      redirect("/home")
-
-      console.log("response Data: ", responseData)
-    } catch (error) {
-      console.error("failed to login", error)
-    }
-    setIsSubmitting(false)
-  }
-
- const handleSignUpHandle= async(e) => {
-    e.preventDefault()
-    const formData = new FormData(e.target)
-    const data = JSON.stringify({
-      email : formData.get("email"),
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = {
+      email: formData.get("email"),
       password: formData.get("password"),
-      name: formData.get("fullName"),
-      phone: formData.get("phoneNumber"),
-      role: role ,
-      category_ids: [categories]
+    };
 
-    })
-    console.log("data:", data)
     try {
-      setIsSubmitting(true)
-      const response = await fetch(`${BACKEND_URL}/users/register`, {body : data, method: "POST"} )
-      const responseData = await response.json()
-      if(!responseData.ok) {
-        alert("failed to register")
-        return
-      }
-      setUserData(responseData.data.user)
-      redirect("/home")
+      setIsSubmitting(true);
+      const response = await api.post("/users/login/", data);
+      setUserData(response.data.user, response.data.token);
+      handleRedirect(response.data.user.role);
     } catch (error) {
-      console.error("failed to login", error)
+      console.error("failed to login", error);
+      alert(error.message || "Login failed. Please check your credentials.");
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false)
-  }
+  };
+
+  const handleSignUpHandle = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    if (formData.get("password") !== formData.get("confirmPassword")) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      
+      // If provider, fetch categories and map names to IDs
+      let categoryIds = [];
+      if (role === "provider" && categories.length > 0) {
+        const catsResponse = await categoriesApi.getCategories();
+        const allCategories = catsResponse.data || [];
+        categoryIds = categories
+          .map(catName => {
+            const matched = allCategories.find(c => c.name.toLowerCase() === catName.toLowerCase());
+            return matched ? matched.id : null;
+          })
+          .filter(id => id !== null);
+      }
+
+      const data = {
+        email: formData.get("email"),
+        password: formData.get("password"),
+        name: formData.get("fullName"),
+        phone: formData.get("phoneNumber"),
+        role: role,
+        category_ids: categoryIds,
+      };
+
+      const response = await api.post("/users/register/", data);
+      setUserData(response.data.user, response.data.token);
+      handleRedirect(response.data.user.role);
+    } catch (error) {
+      console.error("failed to register", error);
+      alert(error.message || "Registration failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <div className="auth-container">
       <div className={`auth-card ${isLogin ? "login-mode" : "register-mode"}`}>

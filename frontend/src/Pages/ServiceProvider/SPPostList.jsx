@@ -1,84 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import SPNavbar from "../../Components/SPNavbar";
 import "../../Styles/SP.css";
-
-const PROVIDER_NAME = "Ramesh Sharma";
-
-const mockPosts = [
-  {
-    id: 1,
-    title: "Need AC Repair at Home",
-    category: "Electrical",
-    location: "Kathmandu, Baneshwor",
-    budget: "NRS 1,500 – 3,000",
-    postedBy: "Sunita Rai",
-    postedAt: "2 hours ago",
-    status: "open",
-    description: "My AC unit is making a strange noise and not cooling properly. Need an experienced technician.",
-    urgency: "urgent",
-  },
-  {
-    id: 2,
-    title: "House Painting – 3BHK",
-    category: "Painting",
-    location: "Lalitpur, Patan",
-    budget: "NRS 15,000 – 25,000",
-    postedBy: "Bikram Thapa",
-    postedAt: "5 hours ago",
-    status: "open",
-    description: "Complete interior and exterior painting required for 3BHK. Looking for experienced painters.",
-    urgency: "normal",
-  },
-  {
-    id: 3,
-    title: "Plumbing – Pipe Leakage Fix",
-    category: "Plumbing",
-    location: "Bhaktapur",
-    budget: "NRS 500 – 1,200",
-    postedBy: "Anita Shrestha",
-    postedAt: "1 day ago",
-    status: "open",
-    description: "Kitchen pipe is leaking. Need an urgent fix. The pipe under the sink is dripping.",
-    urgency: "urgent",
-  },
-  {
-    id: 4,
-    title: "Laptop Repair – Screen Replacement",
-    category: "Electronics",
-    location: "Kathmandu, New Road",
-    budget: "NRS 3,000 – 6,000",
-    postedBy: "Rajan Pandey",
-    postedAt: "1 day ago",
-    status: "bidding",
-    description: "Dell laptop screen is cracked. Need screen replacement. Model: Dell Inspiron 15.",
-    urgency: "normal",
-  },
-  {
-    id: 5,
-    title: "Carpentry – Custom Wardrobe",
-    category: "Carpentry",
-    location: "Lalitpur, Jawalakhel",
-    budget: "NRS 12,000 – 20,000",
-    postedBy: "Meera Gurung",
-    postedAt: "2 days ago",
-    status: "open",
-    description: "Custom wooden wardrobe needed for master bedroom. Size approx 6x8 feet with sliding doors.",
-    urgency: "normal",
-  },
-  {
-    id: 6,
-    title: "Garden Landscaping",
-    category: "Gardening",
-    location: "Kathmandu, Budhanilkantha",
-    budget: "NRS 5,000 – 10,000",
-    postedBy: "Suresh Adhikari",
-    postedAt: "3 days ago",
-    status: "open",
-    description: "Need a professional landscaper to design and maintain a small garden. Area ~200 sqft.",
-    urgency: "normal",
-  },
-];
+import { AuthContext } from "../../context/authContext";
+import api from "../../utils/api";
+import jobsApi from "../../utils/jobsApi";
+import bidsApi from "../../utils/bidsApi";
+import categoriesApi from "../../utils/categoriesApi";
 
 const categoryColors = {
   Electrical: { bg: "#fffbeb", color: "#b45309", border: "#fcd34d" },
@@ -91,11 +19,59 @@ const categoryColors = {
 
 export default function SPPostList() {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [selectedPost, setSelectedPost] = useState(null);
+  
+  const [bidAmount, setBidAmount] = useState("");
+  const [bidMessage, setBidMessage] = useState("");
+  const [submittingBid, setSubmittingBid] = useState(false);
 
-  const filtered = mockPosts.filter((p) => {
+  useEffect(() => {
+    fetchAvailableJobs();
+  }, []);
+
+  const fetchAvailableJobs = async () => {
+    try {
+      setLoading(true);
+      const response = await jobsApi.getAvailableJobs();
+      setPosts(response.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBidSubmit = async () => {
+    if (!bidAmount) {
+      alert("Please enter a bid amount.");
+      return;
+    }
+    try {
+      setSubmittingBid(true);
+      await bidsApi.createBid(selectedPost.id, {
+        amount: parseFloat(bidAmount),
+        message: bidMessage,
+        estimated_days: 1
+      });
+      alert("Bid placed successfully!");
+      setSelectedPost(null);
+      setBidAmount("");
+      setBidMessage("");
+      fetchAvailableJobs();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to place bid.");
+    } finally {
+      setSubmittingBid(false);
+    }
+  };
+
+  const filtered = posts.filter((p) => {
     const matchSearch =
       p.title.toLowerCase().includes(search.toLowerCase()) ||
       p.category.toLowerCase().includes(search.toLowerCase()) ||
@@ -106,6 +82,8 @@ export default function SPPostList() {
       p.status === filter;
     return matchSearch && matchFilter;
   });
+
+  const PROVIDER_NAME = user?.name || "Provider";
 
   return (
     <div className="sp-layout">
@@ -213,13 +191,27 @@ export default function SPPostList() {
             <p>Budget Range: <strong>{selectedPost.budget}</strong></p>
             <div className="sp-modal-form">
               <label>Your Bid Amount (NRS)</label>
-              <input type="number" className="sp-modal-input" placeholder="Enter amount in NRS" />
+              <input 
+                type="number" 
+                className="sp-modal-input" 
+                placeholder="Enter amount in NRS"
+                value={bidAmount}
+                onChange={(e) => setBidAmount(e.target.value)}
+              />
               <label>Message to Client</label>
-              <textarea className="sp-modal-textarea" placeholder="Describe your experience and approach…" rows={3} />
+              <textarea 
+                className="sp-modal-textarea" 
+                placeholder="Describe your experience and approach…" 
+                rows={3}
+                value={bidMessage}
+                onChange={(e) => setBidMessage(e.target.value)}
+              />
             </div>
             <div className="sp-modal-actions">
-              <button className="sp-modal-cancel" onClick={() => setSelectedPost(null)}>Cancel</button>
-              <button className="sp-modal-confirm" onClick={() => setSelectedPost(null)}>Submit Bid</button>
+              <button className="sp-modal-cancel" onClick={() => {setSelectedPost(null); setBidAmount(""); setBidMessage("");}}>Cancel</button>
+              <button className="sp-modal-confirm" onClick={handleBidSubmit} disabled={submittingBid}>
+                {submittingBid ? "Submitting..." : "Submit Bid"}
+              </button>
             </div>
           </div>
         </div>

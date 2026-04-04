@@ -1,64 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
-
-const initialKYC = [
-  {
-    id: 1, name: "Tech Appliance Fix", email: "techfix@email.com", phone: "+977-9834444444",
-    category: "Appliance Repair", avatar: "TF", submitted: "Apr 3, 2025", status: "pending",
-    docs: { citizenship: true, pan: true, selfie: true, certificate: false },
-    address: "Koteshwor, Kathmandu", dob: "1990-05-14", notes: "",
-  },
-  {
-    id: 2, name: "Maya Beauty Parlour", email: "maya@email.com", phone: "+977-9867654321",
-    category: "Beauty & Wellness", avatar: "MB", submitted: "Apr 2, 2025", status: "pending",
-    docs: { citizenship: true, pan: false, selfie: true, certificate: true },
-    address: "Baneshwor, Kathmandu", dob: "1995-08-22", notes: "",
-  },
-  {
-    id: 3, name: "Quick Cleaning Services", email: "clean@email.com", phone: "+977-9856789012",
-    category: "Cleaning", avatar: "QC", submitted: "Apr 1, 2025", status: "pending",
-    docs: { citizenship: true, pan: true, selfie: false, certificate: false },
-    address: "Lalitpur", dob: "1988-11-30", notes: "",
-  },
-  {
-    id: 4, name: "Ramesh Electricals", email: "ramesh@email.com", phone: "+977-9801111111",
-    category: "Electrician", avatar: "RE", submitted: "Mar 15, 2025", status: "approved",
-    docs: { citizenship: true, pan: true, selfie: true, certificate: true },
-    address: "Thamel, Kathmandu", dob: "1985-02-10", notes: "All documents verified successfully.",
-  },
-  {
-    id: 5, name: "Sunita Plumbing Works", email: "sunita@email.com", phone: "+977-9812222222",
-    category: "Plumber", avatar: "SP", submitted: "Mar 10, 2025", status: "rejected",
-    docs: { citizenship: true, pan: false, selfie: true, certificate: false },
-    address: "Lalitpur", dob: "1992-07-18", notes: "PAN card missing. Please resubmit.",
-  },
-];
-
-const docLabels = {
-  citizenship: "Citizenship Card",
-  pan: "PAN Card",
-  selfie: "Live Selfie",
-  certificate: "Work Certificate",
-};
+import api from "../../utils/api";
+import adminApi from "../../utils/adminApi";
 
 export default function AdminKYC() {
   const navigate = useNavigate();
-  const [kyc, setKyc] = useState(initialKYC);
+  const [kyc, setKyc] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [noteInput, setNoteInput] = useState("");
   const [filter, setFilter] = useState("all");
-  const [viewingDoc, setViewingDoc] = useState(null); // { type: string, label: string }
+  const [viewingDoc, setViewingDoc] = useState(null);
+
+  useEffect(() => {
+    fetchKYC();
+  }, []);
+
+  const fetchKYC = async () => {
+    try {
+      setLoading(true);
+      const response = await adminApi.getPendingKYC();
+      setKyc(response.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filtered = kyc.filter((k) => filter === "all" || k.status === filter);
 
-  const handleAction = (id, action) => {
-    setKyc((prev) =>
-      prev.map((k) => k.id === id ? { ...k, status: action, notes: noteInput || k.notes } : k)
-    );
-    setSelected(null);
-    setNoteInput("");
+  const handleAction = async (id, action) => {
+    try {
+      await adminApi.verifyKYC(id, {
+        status: action,
+        notes: noteInput
+      });
+      setKyc((prev) =>
+        prev.map((k) => k.id === id ? { ...k, status: action, notes: noteInput || k.notes } : k)
+      );
+      setSelected(null);
+      setNoteInput("");
+      alert(`KYC ${action} successful.`);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update KYC status.");
+    }
   };
 
   const openDetail = (item) => {
@@ -72,6 +61,13 @@ export default function AdminKYC() {
     pending: kyc.filter((k) => k.status === "pending").length,
     approved: kyc.filter((k) => k.status === "approved").length,
     rejected: kyc.filter((k) => k.status === "rejected").length,
+  };
+
+  const docLabels = {
+    citizenship: "Citizenship Card",
+    pan: "PAN Card",
+    selfie: "Live Selfie",
+    certificate: "Work Certificate",
   };
 
   return (

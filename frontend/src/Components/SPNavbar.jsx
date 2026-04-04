@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Styles/SP.css";
+import { AuthContext } from "../context/authContext";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -9,13 +10,9 @@ function getGreeting() {
   return { text: "Good Evening", emoji: "🌙" };
 }
 
-/**
- * Props:
- *  - providerName {string}  full name of the provider (e.g. "Ramesh Sharma")
- *  - backTo       {string}  route to navigate back to (optional, shows ← Back button)
- */
 export default function SPNavbar({ providerName = "Provider", backTo = "", isVerified = false }) {
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
   const greeting = getGreeting();
   const firstName = providerName.split(" ")[0];
 
@@ -55,7 +52,7 @@ export default function SPNavbar({ providerName = "Provider", backTo = "", isVer
           <button className="sm-nav-profile" onClick={() => navigate("/provider/profile")}>
             <span>👤</span> Profile
           </button>
-          <button className="sp-logout-btn" onClick={() => navigate("/login")}>
+          <button className="sp-logout-btn" onClick={() => { logout(); navigate("/auth"); }}>
             Logout
           </button>
         </div>

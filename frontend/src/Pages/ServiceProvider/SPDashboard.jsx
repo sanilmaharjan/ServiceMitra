@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import SPNavbar from "../../Components/SPNavbar";
 import "../../Styles/SP.css";
-
-const PROVIDER_NAME = "Ramesh Sharma";
-
-const mockStats = {
-  activePosts: 12,
-  totalBids: 23,
-  earnings: 45200,
-};
+import { AuthContext } from "../../context/authContext";
+import api from "../../utils/api";
+import providerApi from "../../utils/providerApi";
+import jobsApi from "../../utils/jobsApi";
 
 export default function SPDashboard() {
   const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
+  const [stats, setStats] = useState({
+    activePosts: 0,
+    totalBids: 0,
+    earnings: 0,
+  });
+  const [loading, setLoading] = useState(true);
 
   const [animated, setAnimated] = useState({
     activePosts: 0,
@@ -21,20 +24,40 @@ export default function SPDashboard() {
   });
 
   useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const response = await providerApi.getStats();
+      const data = response.data;
+      setStats(data);
+      animateStats(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const animateStats = (targetStats) => {
     const steps = 60;
     let step = 0;
     const timer = setInterval(() => {
       step++;
-      const ease = 1 - Math.pow(1 - step / steps, 3);
+      const progress = step / steps;
+      const ease = 1 - Math.pow(1 - progress, 3);
       setAnimated({
-        activePosts: Math.round(mockStats.activePosts * ease),
-        totalBids: Math.round(mockStats.totalBids * ease),
-        earnings: Math.round(mockStats.earnings * ease),
+        activePosts: Math.round(targetStats.activePosts * ease),
+        totalBids: Math.round(targetStats.totalBids * ease),
+        earnings: Math.round(targetStats.earnings * ease),
       });
       if (step >= steps) clearInterval(timer);
     }, 1000 / steps);
-    return () => clearInterval(timer);
-  }, []);
+  };
+
+  const PROVIDER_NAME = user?.name || "Provider";
 
   const cards = [
     {
@@ -81,7 +104,7 @@ export default function SPDashboard() {
         <section className="sm-card" style={{padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', background: 'linear-gradient(135deg, var(--sm-navy), #1e293b)', color: '#fff'}}>
           <div>
             <h2 style={{fontSize: '1.5rem', fontWeight: 800, margin: '0 0 0.5rem'}}>Welcome back, {PROVIDER_NAME.split(" ")[0]}!</h2>
-            <p style={{margin: 0, opacity: 0.8, fontSize: '0.95rem'}}>You have {mockStats.activePosts} potential job matches waiting for your bid.</p>
+            <p style={{margin: 0, opacity: 0.8, fontSize: '0.95rem'}}>You have {stats.activePosts} potential job matches waiting for your bid.</p>
           </div>
           <div style={{display: 'flex', gap: '0.75rem'}}>
             <button className="sm-btn" style={{background: 'var(--sm-orange)', color: '#fff'}} onClick={() => navigate("/provider/posts")}>Find Work Now</button>

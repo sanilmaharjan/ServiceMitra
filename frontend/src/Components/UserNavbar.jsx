@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Styles/User.css";
+import { AuthContext } from "../context/authContext";
 
 function getGreeting() {
   const hour = new Date().getHours();
@@ -9,13 +10,9 @@ function getGreeting() {
   return { text: "Good Evening", emoji: "🌙" };
 }
 
-/**
- * Props:
- *  - userName  {string}  full name of the user (e.g. "Aarav Sharma")
- *  - backTo    {string}  route for ← Back button (optional)
- */
 export default function UserNavbar({ userName = "User", backTo = "" }) {
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
   const greeting = getGreeting();
   const firstName = userName.split(" ")[0];
 
@@ -47,7 +44,7 @@ export default function UserNavbar({ userName = "User", backTo = "" }) {
           <button className="sm-nav-profile" onClick={() => navigate("/user/profile")}>
             <span>👤</span> Profile
           </button>
-          <button className="u-logout-btn" onClick={() => navigate("/login")}>
+          <button className="u-logout-btn" onClick={() => { logout(); navigate("/auth"); }}>
             Logout
           </button>
         </div>

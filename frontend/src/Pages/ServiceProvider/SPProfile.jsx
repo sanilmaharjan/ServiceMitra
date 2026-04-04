@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import SPNavbar from "../../Components/SPNavbar";
 import "../../Styles/SP.css";
-
-const PROVIDER_NAME = "Ramesh Sharma";
+import { AuthContext } from "../../context/authContext";
+import api from "../../utils/api";
+import providerApi from "../../utils/providerApi";
 
 const SKILLS_OPTIONS = [
   "AC Repair","Electrical Wiring","Pipe Fitting","Interior Painting","Solar Setup",
@@ -11,27 +12,59 @@ const SKILLS_OPTIONS = [
   "Cleaning","Welding","Plumbing","Panel Upgrade","Generator Repair",
 ];
 
-const initialProfile = {
-  name: "Ramesh Sharma",
-  email: "ramesh@email.com",
-  phone: "+977-9801111111",
-  location: "Kathmandu, Thamel",
-  category: "Electrical",
-  bio: "Certified electrician and plumber with over 8 years of experience serving residential and commercial clients across the Kathmandu Valley.",
-  skills: ["AC Repair","Electrical Wiring","Pipe Fitting","Solar Setup"],
-};
-
 export default function SPProfile() {
-  const navigate   = useNavigate();
-  const [profile, setProfile] = useState(initialProfile);
-  const [form, setForm]       = useState(initialProfile);
-  const [saved, setSaved]     = useState(false);
-  const initials = profile.name.split(" ").map(n => n[0]).join("").toUpperCase();
+  const { user, setUserData } = useContext(AuthContext);
+  const [profile, setProfile] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    category: "",
+    bio: "",
+    skills: [],
+  });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    category: "",
+    bio: "",
+    skills: [],
+  });
+  const [loading, setLoading] = useState(true);
+  const [saved, setSaved] = useState(false);
 
-  const handleSave = () => {
-    setProfile(form);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await providerApi.getProfile();
+      const data = response.data;
+      setProfile(data);
+      setForm(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const response = await providerApi.updateProfile(form);
+      setProfile(response.data);
+      setUserData(response.data, localStorage.getItem("token"));
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+      alert("Profile updated successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update profile.");
+    }
   };
 
   const setField = (key, value) => {
@@ -48,6 +81,10 @@ export default function SPProfile() {
   };
 
   const changed = JSON.stringify(form) !== JSON.stringify(profile);
+  const initials = (form.name || "P").split(" ").map(n => n[0]).join("").toUpperCase();
+  const PROVIDER_NAME = user?.name || "Provider";
+
+  if (loading) return <div className="provider-layout"><SPNavbar providerName={user?.name} /><main className="sm-container sm-section">Loading...</main></div>;
 
   return (
     <div className="provider-layout animate-fade">

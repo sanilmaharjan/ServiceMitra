@@ -1,32 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
-
-const initialUsers = [
-  { id: 1, name: "Aarav Sharma", email: "aarav@email.com", avatar: "AS", joined: "Jan 12, 2025", status: "active", jobs: 4 },
-  { id: 2, name: "Priya Thapa", email: "priya@email.com", avatar: "PT", joined: "Feb 3, 2025", status: "active", jobs: 2 },
-  { id: 3, name: "Bikas Rai", email: "bikas@email.com", avatar: "BR", joined: "Mar 15, 2025", status: "inactive", jobs: 7 },
-  { id: 4, name: "Sita Gurung", email: "sita@email.com", avatar: "SG", joined: "Mar 20, 2025", status: "active", jobs: 1 },
-];
+import api from "../../utils/api";
+import adminApi from "../../utils/adminApi";
 
 export default function AdminUsers() {
   const navigate = useNavigate();
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [removeId, setRemoveId] = useState(null);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await adminApi.getUsers();
+      setUsers(response.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRemove = async (id) => {
+    try {
+      await adminApi.deleteUser(id);
+      setUsers((prev) => prev.filter((u) => u.id !== id));
+      setRemoveId(null);
+      alert("User account suspended.");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to suspend account.");
+    }
+  };
 
   const filtered = users.filter((u) => {
     const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
     const matchFilter = filter === "all" || u.status === filter;
     return matchSearch && matchFilter;
   });
-
-  const handleRemove = (id) => {
-    setUsers((prev) => prev.filter((u) => u.id !== id));
-    setRemoveId(null);
-  };
 
   return (
     <div className="admin-layout animate-fade">

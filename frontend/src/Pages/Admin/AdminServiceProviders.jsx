@@ -1,51 +1,32 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
-
-const initialProviders = [
-  { 
-    id: 1, name: "Ramesh Electricals", avatar: "RE", category: "Electrician", location: "Kathmandu", rating: 4.8, jobs: 132, status: "verified", earnings: 85000, 
-    joined: "Jan 12, 2024", bio: "Certified electrician with 10+ years of experience in residential and commercial wiring.", 
-    email: "ramesh@electricals.com", phone: "+977 9841234567", kyc: "verified",
-    skills: ["House Wiring", "Smart Home", "Industrial Wiring", "Repair"],
-    portfolio: [
-      { title: "Smart Home Installation", year: "2024", desc: "Complete home automation and smart lighting system setup." },
-      { title: "Industrial Wiring", year: "2023", desc: "Three-phase power installation for a small factory in Patan." }
-    ]
-  },
-  { 
-    id: 2, name: "Sunita Plumbing Works", avatar: "SP", category: "Plumber", location: "Lalitpur", rating: 4.6, jobs: 89, status: "verified", earnings: 62000, 
-    joined: "Feb 5, 2024", bio: "Expert in leakage detection and bathroom renovation projects.", 
-    email: "sunita@plumbing.com", phone: "+977 9801234567", kyc: "verified",
-    skills: ["Leakage Fix", "Pipe Fitting", "Bathroom Renovation", "Maintenance"],
-    portfolio: [
-      { title: "Hotel Bathroom Overhaul", year: "2024", desc: "Installed modern fixtures and piping for a boutique hotel." }
-    ]
-  },
-  { 
-    id: 3, name: "Bijay Painting Co.", avatar: "BP", category: "Painter", location: "Bhaktapur", rating: 4.9, jobs: 210, status: "verified", earnings: 120000, 
-    joined: "Nov 20, 2023", bio: "Specializing in texture painting and exterior weatherproofing.", 
-    email: "bijay@painting.com", phone: "+977 9812345678", kyc: "verified",
-    skills: ["Texture Paint", "Interior Design", "Weatherproofing", "Ceiling Design"],
-    portfolio: [
-      { title: "Heritage Building Restoration", year: "2024", desc: "Eco-friendly paint restoration for a historical site." }
-    ]
-  },
-  { 
-    id: 4, name: "Tech Appliance Fix", avatar: "TF", category: "Appliance Repair", location: "Kathmandu", rating: 4.5, jobs: 67, status: "pending", earnings: 34000, 
-    joined: "Mar 1, 2025", bio: "Quick and reliable repair service for all major home appliance brands.", 
-    email: "tech@fix.com", phone: "+977 9851234567", kyc: "pending",
-    skills: ["AC Repair", "Washing Machine", "Microwave", "Refrigerator"],
-    portfolio: []
-  },
-];
+import api from "../../utils/api";
+import adminApi from "../../utils/adminApi";
 
 export default function AdminServiceProviders() {
   const navigate = useNavigate();
-  const [providers, setProviders] = useState(initialProviders);
+  const [providers, setProviders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+
+  useEffect(() => {
+    fetchProviders();
+  }, []);
+
+  const fetchProviders = async () => {
+    try {
+      setLoading(true);
+      const response = await adminApi.getProviders();
+      setProviders(response.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filtered = providers.filter((p) => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase());
