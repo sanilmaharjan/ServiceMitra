@@ -1,9 +1,15 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import Index from "./Pages/Index";
 import Auth from "./Pages/Auth";
+import AdminDashboard from "./Pages/Admin/AdminDashboard";
+import AdminUsers from "./Pages/Admin/AdminUsers";
+import AdminServiceProviders from "./Pages/Admin/AdminServiceProviders";
+import ProviderPortfolio from "./Pages/Admin/ProviderPortfolio";
+import AdminPayments from "./Pages/Admin/AdminPayments";
+import AdminKYC from "./Pages/Admin/AdminKYC";
 
 // Placeholder components so routing doesn't break
 const About = () => (
@@ -18,6 +24,23 @@ const Contact = () => (
 );
 
 function App() {
+  const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
+
+  if (isAdminRoute) {
+    return (
+      <Routes>
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/service-providers" element={<AdminServiceProviders />} />
+        <Route path="/admin/service-providers/:id/portfolio" element={<ProviderPortfolio />} />
+        <Route path="/admin/payments" element={<AdminPayments />} />
+        <Route path="/admin/payments/:id" element={<AdminPayments />} />
+        <Route path="/admin/kyc" element={<AdminKYC />} />
+      </Routes>
+    );
+  }
+
   return (
     <div className="d-flex flex-column min-vh-100">
       <Navbar />
