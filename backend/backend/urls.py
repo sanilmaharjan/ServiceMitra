@@ -26,6 +26,8 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path('api/jobs/', include('jobs.urls')),
     path('api/reviews/', include('reviews.urls')),
+    path('api/notifications/', include('notification.urls')),
+    path('api/admin/', include('admin_app.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

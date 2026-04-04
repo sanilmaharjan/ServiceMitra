@@ -9,6 +9,6 @@ urlpatterns = [
     path('<int:provider_id>/approve/', views.approve_verification, name='approve-verification'),
     path('<int:provider_id>/reject/', views.reject_verification, name='reject-verification'),
     
-    path('admin/users/', views.list_all_users, name='list-all-users'),
-    path('admin/users/<int:user_id>/delete/', views.delete_user, name='delete-user'),
+    path('users/', views.list_all_users, name='list-all-users'),
+    path('users/<int:user_id>/delete/', views.delete_user, name='delete-user'),
 ]

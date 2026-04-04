@@ -182,10 +182,9 @@ def list_all_users(request):
             'created_at': user.created_at,
         }
         
-        # Add verification status for providers
         if user.role == 'service_provider' and hasattr(user, 'provider_profile'):
             user_data['is_verified'] = user.provider_profile.is_verified
-            user_data['business_name'] = user.provider_profile.business_name
+            user_data['name'] = user.name
         
         data.append(user_data)
     
