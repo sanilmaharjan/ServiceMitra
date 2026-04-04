@@ -26,7 +26,7 @@ def pending_verifications(request):
             'id': profile.id,
             'provider_id': profile.custom_user.id,
             'name': profile.custom_user.name,
-            'business_name': profile.business_name,
+            # 'business_name': profile.business_name,
             'phone': profile.custom_user.phone,
             'citizenship_number': profile.citizenship_number,
             'citizenship_image': profile.citizenship_image.url if profile.citizenship_image else None,
@@ -119,8 +119,9 @@ def submit_kyc(request):
     profile = get_object_or_404(ProviderProfile, custom_user=user)
     
     # Update KYC fields
-    if 'business_name' in request.data:
-        profile.business_name = request.data['business_name']
+    # if 'business_name' in request.data:
+    #     profile.business_name = request.data['business_name']
+    
     if 'citizenship_number' in request.data:
         profile.citizenship_number = request.data['citizenship_number']
     if 'citizenship_image' in request.data:

@@ -61,5 +61,5 @@ class ProviderProfile(models.Model):
 
     def __str__(self):
         status = "Verified" if self.is_verified else "Pending"
-        return f"{self.business_name} - {status}"
+        return f" {status}"
 
