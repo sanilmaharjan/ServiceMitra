@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
-import api from "../../utils/api";
 import adminApi from "../../utils/adminApi";
 
 export default function AdminPayments() {
@@ -124,7 +123,7 @@ export default function AdminPayments() {
                           <div className="admin-avatar-sm" style={{background: 'var(--sm-navy)'}}>{p.avatar}</div>
                           <div>
                             <div className="admin-user-name">{p.name}</div>
-                            <div className="admin-user-email">⭐ {p.rating}</div>
+                            <div className="admin-user-email">{p.rating}</div>
                           </div>
                         </div>
                       </td>

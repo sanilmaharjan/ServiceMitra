@@ -1,8 +1,8 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
-import "../styles/Navbar.css";
 import { AuthContext } from "../context/authContext";
+import "../styles/Navbar.css";
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -10,7 +10,7 @@ const Navbar = () => {
 
   const handleDashboardRedirect = () => {
     if (user.role === "admin") navigate("/admin");
-    else if (user.role === "provider") navigate("/provider");
+    else if (user.role === "service_provider") navigate("/provider");
     else navigate("/user");
   };
 

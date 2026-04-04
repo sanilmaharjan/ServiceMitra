@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
 import SPNavbar from "../../Components/SPNavbar";
 import "../../Styles/SP.css";
 import { AuthContext } from "../../context/authContext";
-import api from "../../utils/api";
 import providerApi from "../../utils/providerApi";
 
 const SKILLS_OPTIONS = [
@@ -96,7 +94,7 @@ export default function SPProfile() {
             <div style={{width: '80px', height: '80px', background: 'var(--sm-orange)', color: '#fff', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.8rem'}}>{initials}</div>
             <div>
               <h1 style={{fontSize: '1.75rem', fontWeight: 800, color: 'var(--sm-navy)', margin: '0 0 0.25rem'}}>{profile.name}</h1>
-              <p style={{margin: 0, color: 'var(--sm-text-light)', fontSize: '0.9rem'}}>{profile.category} · 📍 {profile.location} · 📧 {profile.email}</p>
+              <p style={{margin: 0, color: 'var(--sm-text-light)', fontSize: '0.9rem'}}>{profile.category} ·  {profile.location} ·  {profile.email}</p>
             </div>
           </div>
 

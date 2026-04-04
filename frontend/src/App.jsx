@@ -1,30 +1,27 @@
-import React from "react";
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
-import Navbar from "./Components/Navbar";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Footer from "./Components/Footer";
+import Navbar from "./Components/Navbar";
 import ProtectedRoute from "./Components/ProtectedRoute";
-import Index from "./Pages/Index";
-import Auth from "./Pages/Auth";
 import AboutUs from "./Pages/AboutUs";
-import Contact from "./Pages/Contact";
 import AdminDashboard from "./Pages/Admin/AdminDashboard";
-import AdminUsers from "./Pages/Admin/AdminUsers";
-import AdminServiceProviders from "./Pages/Admin/AdminServiceProviders";
-import ProviderPortfolio from "./Pages/Admin/ProviderPortfolio";
-import AdminPayments from "./Pages/Admin/AdminPayments";
 import AdminKYC from "./Pages/Admin/AdminKYC";
-import SPDashboard from "./Pages/ServiceProvider/SPDashboard";
-import SPPostList from "./Pages/ServiceProvider/SPPostList";
+import AdminServiceProviders from "./Pages/Admin/AdminServiceProviders";
+import AdminUsers from "./Pages/Admin/AdminUsers";
+import ProviderPortfolio from "./Pages/Admin/ProviderPortfolio";
+import Auth from "./Pages/Auth";
+import Contact from "./Pages/Contact";
+import Index from "./Pages/Index";
 import SPBids from "./Pages/ServiceProvider/SPBids";
+import SPDashboard from "./Pages/ServiceProvider/SPDashboard";
+import SPKYC from "./Pages/ServiceProvider/SPKYC";
 import SPPortfolio from "./Pages/ServiceProvider/SPPortfolio";
+import SPPostList from "./Pages/ServiceProvider/SPPostList";
+import SPProfile from "./Pages/ServiceProvider/SPProfile";
 import UserDashboard from "./Pages/User/UserDashboard";
+import UserHistory from "./Pages/User/UserHistory";
 import UserPostDetail from "./Pages/User/UserPostDetail";
 import UserProfile from "./Pages/User/UserProfile";
-import UserHistory from "./Pages/User/UserHistory";
-import SPProfile from "./Pages/ServiceProvider/SPProfile";
-import SPKYC from "./Pages/ServiceProvider/SPKYC";
 import "./Styles/Global.css";
-import { AuthProvider } from "./context/authContext";
 
 function App() {
   const location = useLocation();
@@ -41,8 +38,8 @@ function App() {
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/service-providers" element={<AdminServiceProviders />} />
           <Route path="/admin/service-providers/:id/portfolio" element={<ProviderPortfolio />} />
-          <Route path="/admin/payments" element={<AdminPayments />} />
-          <Route path="/admin/payments/:id" element={<AdminPayments />} />
+          {/* <Route path="/admin/payments" element={<AdminPayments />} /> */}
+          {/* <Route path="/admin/payments/:id" element={<AdminPayments />} /> */}
           <Route path="/admin/kyc" element={<AdminKYC />} />
         </Route>
         <Route path="*" element={<Navigate to="/admin" replace />} />

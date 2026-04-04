@@ -31,8 +31,8 @@ class ProviderProfile(models.Model):
     citizenship_number = models.CharField(max_length=100)
     citizenship_image = models.ImageField(upload_to='kyc/citizenship/')
 
-    # pan_number = models.CharField(max_length=20, blank=True, null=True)
-    # pan_image = models.ImageField(upload_to='kyc/pan/', blank=True, null=True)
+    pan_number = models.CharField(max_length=20, blank=True, null=True)
+    pan_image = models.ImageField(upload_to='kyc/pan/', blank=True, null=True)
 
     license_number = models.CharField(max_length=100, blank=True, null=True)
     license_image = models.ImageField(upload_to='kyc/license/', blank=True, null=True)
@@ -61,5 +61,5 @@ class ProviderProfile(models.Model):
 
     def __str__(self):
         status = "Verified" if self.is_verified else "Pending"
-        return f" {status}"
+        return f" {status}-{self.custom_user.name}"
 

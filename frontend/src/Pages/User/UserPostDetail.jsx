@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import UserNavbar from "../../Components/UserNavbar";
 import "../../Styles/User.css";
 import { AuthContext } from "../../context/authContext";
-import api from "../../utils/api";
-import jobsApi from "../../utils/jobsApi";
 import bidsApi from "../../utils/bidsApi";
+import jobsApi from "../../utils/jobsApi";
 
 const CATEGORIES = [
   "Electrical","Plumbing","Painting","Carpentry","Cleaning",
@@ -206,9 +205,9 @@ export default function UserPostDetail() {
                       <h4 onClick={() => setViewBidder(bid.bidder)} style={{margin: '0 0 0.25rem', fontSize: '1rem', color: 'var(--sm-text-dark)', cursor: 'pointer', fontWeight: 700}}>{bid.bidder.name}</h4>
                       <p style={{margin: '0 0 0.5rem', fontSize: '0.85rem', color: 'var(--sm-text-mid)'}}>{bid.note}</p>
                       <div style={{display: 'flex', gap: '1rem', fontSize: '0.75rem', color: 'var(--sm-text-light)'}}>
-                        <span>⭐ {bid.bidder.rating}</span>
-                        <span>✅ {bid.bidder.jobs} Jobs</span>
-                        <span>🕑 {bid.placedAt}</span>
+                        <span> {bid.bidder.rating}</span>
+                        <span> {bid.bidder.jobs} Jobs</span>
+                        <span> {bid.placedAt}</span>
                       </div>
                     </div>
                   </div>

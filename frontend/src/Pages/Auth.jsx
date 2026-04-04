@@ -1,7 +1,7 @@
-import React, { useContext, useState, useEffect } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/Auth.css";
 import { AuthContext } from "../context/authContext";
+import "../styles/Auth.css";
 import api from "../utils/api";
 import categoriesApi from "../utils/categoriesApi";
 
@@ -22,14 +22,14 @@ const Auth = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, token, setUserData } = useContext(AuthContext);
 
-  useEffect(() => {
-    if (token && user && user.role) {
-      const timeout = setTimeout(() => {
-        handleRedirect(user.role);
-      }, 100);
-      return () => clearTimeout(timeout);
-    }
-  }, [user, token]);
+  // useEffect(() => {
+  //   if (token && user && user.role) {
+  //     const timeout = setTimeout(() => {
+  //       handleRedirect(user.role);
+  //     }, 100);
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [user, token]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -45,8 +45,9 @@ const Auth = () => {
   };
 
   const handleRedirect = (userRole) => {
+    console.log(userRole)
     if (userRole === "admin") navigate("/admin");
-    else if (userRole === "provider") navigate("/provider");
+    else if (userRole === 'service_provider') navigate("/provider");
     else navigate("/user");
   };
 
@@ -61,8 +62,8 @@ const Auth = () => {
     try {
       setIsSubmitting(true);
       const response = await api.post("/users/login/", data);
-      setUserData(response.data.user, response.data.token);
-      handleRedirect(response.data.user.role);
+      setUserData(response.user, response.access);
+      handleRedirect(response.user.role);
     } catch (error) {
       console.error("failed to login", error);
       alert(error.message || "Login failed. Please check your credentials.");
@@ -85,12 +86,12 @@ const Auth = () => {
       
       // If provider, fetch categories and map names to IDs
       let categoryIds = [];
-      if (role === "provider" && categories.length > 0) {
+      if (role === "service_provider" && categories.length > 0) {
         const catsResponse = await categoriesApi.getCategories();
         const allCategories = catsResponse.data || [];
         categoryIds = categories
           .map(catName => {
-            const matched = allCategories.find(c => c.name.toLowerCase() === catName.toLowerCase());
+            const matched = allCategories.find(c => c.name.toLowerCase() === catName.name.toLowerCase());
             return matched ? matched.id : null;
           })
           .filter(id => id !== null);
@@ -106,8 +107,8 @@ const Auth = () => {
       };
 
       const response = await api.post("/users/register/", data);
-      setUserData(response.data.user, response.data.token);
-      handleRedirect(response.data.user.role);
+      setUserData(response.user, response.access);
+      handleRedirect(response.user.role);
     } catch (error) {
       console.error("failed to register", error);
       alert(error.message || "Registration failed. Please try again.");
@@ -141,7 +142,7 @@ const Auth = () => {
             {/* Role toggle */}
             <div className="role-toggle">
               <button type="button" className={`role-btn ${role === "client" ? "role-active" : ""}`} onClick={() => { setRole("client"); setCategories([]); }}>Client</button>
-              <button type="button" className={`role-btn ${role === "provider" ? "role-active" : ""}`} onClick={() => setRole("provider")}>Service Provider</button>
+              <button type="button" className={`role-btn ${role === "service_provider" ? "role-active" : ""}`} onClick={() => setRole("service_provider")}>Service Provider</button>
             </div>
 
             <input name="fullName" type="text" placeholder="Full Name" className="auth-input" required />
@@ -151,7 +152,7 @@ const Auth = () => {
             <input name="confirmPassword" type="password" placeholder="Confirm Password" className="auth-input" required />
 
             {/* SERVICE CATEGORIES */}
-            {role === "provider" && (
+            {role === "service_provider" && (
               <div className="service-checkbox-group">
                 <p className="service-checkbox-label">Select Services Offered</p>
                 <div className="service-checkbox-grid">

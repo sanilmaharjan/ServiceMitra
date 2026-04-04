@@ -1,131 +1,206 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import SPNavbar from "../../Components/SPNavbar";
-import "../../Styles/SP.css";
+import UserNavbar from "../../Components/UserNavbar";
+import "../../Styles/User.css";
 import { AuthContext } from "../../context/authContext";
-import api from "../../utils/api";
-import providerApi from "../../utils/providerApi";
+import categoriesApi from "../../utils/categoriesApi";
 import jobsApi from "../../utils/jobsApi";
 
-export default function SPDashboard() {
+export default function UserDashboard() {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [stats, setStats] = useState({
-    activePosts: 0,
-    totalBids: 0,
-    earnings: 0,
-  });
+  const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [availableCategories, setAvailableCategories] = useState([]);
 
-  const [animated, setAnimated] = useState({
-    activePosts: 0,
-    totalBids: 0,
-    earnings: 0,
-  });
+  const [isOpen, setIsOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [budget, setBudget] = useState("");
+  const [location, setLocation] = useState("");
+  const [urgency, setUrgency] = useState("normal");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchStats();
+    fetchJobs();
+    fetchCategories();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchJobs = async () => {
     try {
       setLoading(true);
-      const response = await providerApi.getStats();
-      const data = response.data;
-      setStats(data);
-      animateStats(data);
+      const response = await jobsApi.getMyJobs();
+      setPosts(response.data || []);
     } catch (err) {
+      setError("Failed to load your service requests.");
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const animateStats = (targetStats) => {
-    const steps = 60;
-    let step = 0;
-    const timer = setInterval(() => {
-      step++;
-      const progress = step / steps;
-      const ease = 1 - Math.pow(1 - progress, 3);
-      setAnimated({
-        activePosts: Math.round(targetStats.activePosts * ease),
-        totalBids: Math.round(targetStats.totalBids * ease),
-        earnings: Math.round(targetStats.earnings * ease),
-      });
-      if (step >= steps) clearInterval(timer);
-    }, 1000 / steps);
+  const fetchCategories = async () => {
+    try {
+      const response = await categoriesApi.getCategories();
+      setAvailableCategories(response.data || []);
+    } catch (err) {
+      console.error("Failed to load categories", err);
+    }
   };
 
-  const PROVIDER_NAME = user?.name || "Provider";
+  const canPost = title.trim().length > 0 && description.trim().length > 0 && category;
 
-  const cards = [
-    {
-      title: "Active Requests",
-      value: animated.activePosts,
-      icon: "🔍",
-      color: "var(--sm-navy)",
-      subtitle: "New jobs in your area",
-      route: "/provider/posts",
-      badge: "Browse Jobs",
-    },
-    {
-      title: "My Proposals",
-      value: animated.totalBids,
-      icon: "✉️",
-      color: "var(--sm-orange)",
-      subtitle: "Bids awaiting review",
-      route: "/provider/bids",
-      badge: "Manage Bids",
-    },
-    {
-      title: "Total Earnings",
-      value: `NRS ${animated.earnings.toLocaleString()}`,
-      icon: "💰",
-      color: "var(--sm-success)",
-      subtitle: "Lifetime platform income",
-      route: "/provider/portfolio",
-      badge: "Portfolio",
-    },
-  ];
+  const handlePost = async () => {
+    if (!canPost) return;
+    try {
+      setSubmitting(true);
+      
+      const selectedCategory = availableCategories.find(c => c.name === category);
+      
+      if (!selectedCategory) {
+        alert("Please select a valid category");
+        return;
+      }
+      
+      const newJobData = {
+        title: title.trim(),
+        description: description.trim(),
+        category: selectedCategory.id,
+        budget: budget ? parseFloat(budget) : 0,
+        address: location || "Not specified",
+        city: location || "Not specified",
+        preferred_start_date: new Date().toISOString().split('T')[0],
+        preferred_deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      };
+      
+      const response = await jobsApi.createJob(newJobData);
+      setPosts((prev) => [response.data, ...prev]);
+      
+      // Reset form
+      setTitle("");
+      setDescription("");
+      setCategory("");
+      setBudget("");
+      setLocation("");
+      setUrgency("normal");
+      setIsOpen(false);
+      
+      alert("Job posted successfully!");
+    } catch (err) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to post job. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const USER_NAME = user?.name || "User";
+  const USER_INITIALS = USER_NAME.split(" ").map(n => n[0]).join("").toUpperCase();
 
   return (
-    <div className="provider-layout animate-fade">
-      <SPNavbar providerName={PROVIDER_NAME} />
+    <div className="user-layout animate-fade">
+      <UserNavbar userName={USER_NAME} />
 
       <main className="sm-container sm-section">
-        {/* --- Header --- */}
-        <header className="page-header" style={{marginBottom: '2.5rem'}}>
-          <h1 style={{fontSize: '2rem', fontWeight: 800, color: 'var(--sm-navy)', margin: 0}}>Provider Dashboard</h1>
-          <p style={{color: 'var(--sm-text-mid)', marginTop: '0.4rem'}}>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+        <header className="page-header" style={{marginBottom: '2rem'}}>
+          <h1 style={{fontSize: '2rem', fontWeight: 800, color: 'var(--sm-navy)', margin: 0}}>Service Requests</h1>
+          <p style={{color: 'var(--sm-text-mid)', marginTop: '0.5rem'}}>Manage your active jobs and find the best professionals.</p>
         </header>
 
-        {/* --- Welcome Quick Actions --- */}
-        <section className="sm-card" style={{padding: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', background: 'linear-gradient(135deg, var(--sm-navy), #1e293b)', color: '#fff'}}>
-          <div>
-            <h2 style={{fontSize: '1.5rem', fontWeight: 800, margin: '0 0 0.5rem'}}>Welcome back, {PROVIDER_NAME.split(" ")[0]}!</h2>
-            <p style={{margin: 0, opacity: 0.8, fontSize: '0.95rem'}}>You have {stats.activePosts} potential job matches waiting for your bid.</p>
-          </div>
-          <div style={{display: 'flex', gap: '0.75rem'}}>
-            <button className="sm-btn" style={{background: 'var(--sm-orange)', color: '#fff'}} onClick={() => navigate("/provider/posts")}>Find Work Now</button>
-            <button className="sm-btn sm-btn-outline" style={{borderColor: 'rgba(255,255,255,0.3)', color: '#fff'}} onClick={() => navigate("/provider/portfolio")}>View Profile</button>
-          </div>
+        {/* --- Simplified Composer --- */}
+        <section className="composer-section" style={{marginBottom: '3rem'}}>
+          {!isOpen ? (
+            <div className="sm-card" onClick={() => setIsOpen(true)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem'}}>
+              <div className="avatar-circle" style={{width: '40px', height: '40px', background: 'var(--sm-navy)', color: '#fff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800}}>{USER_INITIALS}</div>
+              <div style={{color: 'var(--sm-text-light)', fontSize: '0.95rem'}}>What service do you need today, {USER_NAME.split(" ")[0]}?</div>
+              <button className="sm-btn sm-btn-primary" style={{marginLeft: 'auto', padding: '0.5rem 1.25rem'}}>Create Post</button>
+            </div>
+          ) : (
+            <div className="sm-card animate-fade" style={{padding: '2rem'}}>
+              <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
+                <h3 style={{margin: 0, fontSize: '1.1rem', color: 'var(--sm-navy)'}}>New Service Request</h3>
+                <button className="sm-btn-ghost" onClick={() => setIsOpen(false)}>✕</button>
+              </div>
+
+              <div className="sm-grid" style={{gridTemplateColumns: '1fr 1fr'}}>
+                <div className="sm-input-group" style={{gridColumn: '1 / -1'}}>
+                  <label className="sm-label">Project Title *</label>
+                  <input className="sm-input" placeholder="e.g. Repair Kitchen Sink" value={title} onChange={e => setTitle(e.target.value)} />
+                </div>
+                <div className="sm-input-group" style={{gridColumn: '1 / -1'}}>
+                  <label className="sm-label">Details *</label>
+                  <textarea className="sm-input" style={{minHeight: '100px'}} placeholder="Describe the problem..." value={description} onChange={e => setDescription(e.target.value)} />
+                </div>
+                <div className="sm-input-group">
+                  <label className="sm-label">Category *</label>
+                  <select className="sm-input" value={category} onChange={e => setCategory(e.target.value)}>
+                    <option value="">Select Category</option>
+                    {availableCategories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div className="sm-input-group">
+                  <label className="sm-label">Budget (NRS)</label>
+                  <input className="sm-input" type="number" placeholder="Optional" value={budget} onChange={e => setBudget(e.target.value)} />
+                </div>
+                <div className="sm-input-group">
+                  <label className="sm-label">Location</label>
+                  <input className="sm-input" placeholder="e.g. Kathmandu" value={location} onChange={e => setLocation(e.target.value)} />
+                </div>
+                <div className="sm-input-group">
+                  <label className="sm-label">Urgency</label>
+                  <select className="sm-input" value={urgency} onChange={e => setUrgency(e.target.value)}>
+                    <option value="normal">Normal</option>
+                    <option value="urgent">Urgent</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem'}}>
+                <button className="sm-btn sm-btn-outline" onClick={() => setIsOpen(false)}>Cancel</button>
+                <button className="sm-btn sm-btn-primary" onClick={handlePost} disabled={!canPost || submitting}>
+                  {submitting ? 'Posting...' : 'Post Request'}
+                </button>
+              </div>
+            </div>
+          )}
         </section>
 
-        {/* --- Stats Grid --- */}
-        <div className="sm-grid" style={{gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))'}}>
-          {cards.map((card, i) => (
-            <div key={card.title} className="sm-card animate-fade" onClick={() => navigate(card.route)} style={{cursor: 'pointer', padding: '1.75rem', animationDelay: `${i * 0.1}s`}}>
-              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem'}}>
-                <div style={{width: '50px', height: '50px', background: 'var(--sm-gray-light)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem'}}>{card.icon}</div>
-                <span style={{fontSize: '0.75rem', fontWeight: 700, background: 'var(--sm-gray-light)', color: card.color, padding: '0.25rem 0.75rem', borderRadius: '50px'}}>{card.badge}</span>
+        {/* --- Active Posts --- */}
+        <section className="posts-section">
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem'}}>
+            <h2 style={{fontSize: '1.25rem', fontWeight: 700, color: 'var(--sm-navy)', margin: 0}}>Active Requests</h2>
+            <div className="sm-badge sm-badge-info">{posts.length} Active</div>
+          </div>
+
+          <div className="sm-grid" style={{gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))'}}>
+            {posts.length === 0 ? (
+              <div className="sm-card" style={{textAlign: 'center', padding: '3rem'}}>
+                <p style={{color: 'var(--sm-text-light)'}}>No active requests. Click "Create Post" to get started.</p>
               </div>
-              <div style={{fontSize: '2.5rem', fontWeight: 900, color: 'var(--sm-navy)', marginBottom: '0.25rem'}}>{card.value}</div>
-              <h3 style={{fontSize: '1rem', fontWeight: 700, margin: '0 0 0.5rem', color: 'var(--sm-text-dark)'}}>{card.title}</h3>
-              <p style={{fontSize: '0.85rem', color: 'var(--sm-text-light)', margin: 0}}>{card.subtitle}</p>
-            </div>
-          ))}
-        </div>
+            ) : (
+              posts.map(post => (
+                <div key={post.id} className="sm-card" onClick={() => navigate(`/user/posts/${post.id}`, { state: { post } })} style={{cursor: 'pointer', padding: '1.5rem'}}>
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem'}}>
+                    <span className={`sm-badge ${post.status === 'open' ? 'sm-badge-success' : 'sm-badge-warning'}`}>{post.status}</span>
+                    <span style={{fontSize: '0.8rem', color: 'var(--sm-text-light)'}}>{new Date(post.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <h3 style={{fontSize: '1.1rem', fontWeight: 700, margin: '0 0 0.5rem', color: 'var(--sm-text-dark)'}}>{post.title}</h3>
+                  <p style={{fontSize: '0.9rem', color: 'var(--sm-text-mid)', lineHeight: '1.5', margin: '0 0 1.25rem', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'}}>{post.description}</p>
+                  
+                  <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid var(--sm-gray-border)'}}>
+                    <div style={{display: 'flex', gap: '0.5rem'}}>
+                      <span style={{fontSize: '0.75rem', fontWeight: 600, padding: '0.2rem 0.6rem', borderRadius: '4px', background: 'var(--sm-gray-light)'}}>{post.category_name}</span>
+                      {post.budget > 0 && <span style={{fontSize: '0.75rem', fontWeight: 600, padding: '0.2rem 0.6rem', borderRadius: '4px', background: 'var(--sm-gray-light)'}}>NRS {post.budget}</span>}
+                    </div>
+                    <div style={{fontSize: '0.85rem', color: 'var(--sm-navy)', fontWeight: 600}}>🏷️ View Details →</div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
       </main>
     </div>
   );

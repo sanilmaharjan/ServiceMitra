@@ -1,264 +1,372 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
-import api from "../../utils/api";
 import adminApi from "../../utils/adminApi";
 
 export default function AdminKYC() {
   const navigate = useNavigate();
-  const [kyc, setKyc] = useState([]);
+  const [kycList, setKycList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selected, setSelected] = useState(null);
+  const [selectedProvider, setSelectedProvider] = useState(null);
   const [noteInput, setNoteInput] = useState("");
+  const [reasonInput, setReasonInput] = useState("");
   const [filter, setFilter] = useState("all");
-  const [viewingDoc, setViewingDoc] = useState(null);
+  const [actionType, setActionType] = useState(null);
+
+  // useEffect(() => {
+  //   fetchKYC();
+  // }, []);
+
+  const fetchedRef = useRef(false);
 
   useEffect(() => {
-    fetchKYC();
+    if (!fetchedRef.current) {
+      fetchedRef.current = true;
+      fetchKYC();
+    }
   }, []);
 
   const fetchKYC = async () => {
     try {
       setLoading(true);
       const response = await adminApi.getPendingKYC();
-      setKyc(response.data || []);
+      const formattedData = (response.data || []).map(item => ({
+        id: item.id,
+        provider_id: item.provider_id,
+        name: item.name,
+        phone: item.phone,
+        categories: item.categories || [],
+        citizenship_number: item.citizenship_number,
+        citizenship_image: item.citizenship_image,
+        pan_number: item.pan_number,
+        pan_image: item.pan_image,
+        license_number: item.license_number,
+        license_image: item.license_image,
+        insurance_provider: item.insurance_provider,
+        years_experience: item.years_experience,
+        created_at: item.created_at,
+        status: "pending",
+        avatar: item.name?.charAt(0).toUpperCase() || "P",
+        hasDocuments: !!(item.citizenship_number || item.pan_number || item.license_number)
+      }));
+      setKycList(formattedData);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching KYC:", err);
+      alert("Failed to load pending verifications");
     } finally {
       setLoading(false);
     }
   };
 
-  const filtered = kyc.filter((k) => filter === "all" || k.status === filter);
-
-  const handleAction = async (id, action) => {
+  const handleApprove = async () => {
     try {
-      await adminApi.verifyKYC(id, {
-        status: action,
-        notes: noteInput
-      });
-      setKyc((prev) =>
-        prev.map((k) => k.id === id ? { ...k, status: action, notes: noteInput || k.notes } : k)
-      );
-      setSelected(null);
+      await adminApi.approveKYC(selectedProvider.provider_id, { notes: noteInput });
+      alert(`Provider "${selectedProvider.name}" has been approved successfully!`);
+      setActionType(null);
+      setSelectedProvider(null);
       setNoteInput("");
-      alert(`KYC ${action} successful.`);
+      fetchKYC();
     } catch (err) {
       console.error(err);
-      alert("Failed to update KYC status.");
+      alert("Failed to approve KYC");
     }
   };
 
-  const openDetail = (item) => {
-    setSelected(item);
-    setNoteInput(item.notes || "");
+  const handleReject = async () => {
+    if (!reasonInput.trim()) {
+      alert("Please provide a reason for rejection");
+      return;
+    }
+    try {
+      await adminApi.rejectKYC(selectedProvider.provider_id, { reason: reasonInput });
+      alert(`Provider "${selectedProvider.name}" has been rejected`);
+      setActionType(null);
+      setSelectedProvider(null);
+      setReasonInput("");
+      fetchKYC();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to reject KYC");
+    }
   };
 
-  const statusColor = { pending: "#f5af19", approved: "#43e97b", rejected: "#fa709a" };
-  const counts = {
-    all: kyc.length,
-    pending: kyc.filter((k) => k.status === "pending").length,
-    approved: kyc.filter((k) => k.status === "approved").length,
-    rejected: kyc.filter((k) => k.status === "rejected").length,
+  const openActionModal = (provider, action) => {
+    setSelectedProvider(provider);
+    setActionType(action);
+    if (action === 'approve') {
+      setNoteInput("");
+    } else {
+      setReasonInput("");
+    }
   };
 
-  const docLabels = {
-    citizenship: "Citizenship Card",
-    pan: "PAN Card",
-    selfie: "Live Selfie",
-    certificate: "Work Certificate",
+  const getDocumentCount = (provider) => {
+    let count = 0;
+    if (provider.citizenship_number) count++;
+    if (provider.pan_number) count++;
+    if (provider.license_number) count++;
+    if (provider.insurance_provider) count++;
+    return count;
   };
+
+  const filteredList = kycList.filter(item => {
+    if (filter === "all") return true;
+    if (filter === "has-docs") return item.hasDocuments;
+    if (filter === "no-docs") return !item.hasDocuments;
+    return true;
+  });
+
+  if (loading) {
+    return (
+      <div className="admin-layout">
+        <AdminNavbar backTo="/admin" pageIcon="📋" pageTitle="KYC Verification" />
+        <main className="sm-container sm-section">
+          <div style={{textAlign: 'center', padding: '3rem'}}>Loading pending verifications...</div>
+        </main>
+      </div>
+    );
+  }
 
   return (
-    <div className="admin-layout">
-      <AdminNavbar
-        backTo="/admin"
-        pageIcon="📋"
+    <div className="admin-layout animate-fade">
+      <AdminNavbar 
+        backTo="/admin" 
+        pageIcon="📋" 
         pageTitle="KYC Verification"
         rightSlot={
-          <span className="admin-count-chip urgent">{counts.pending} Pending</span>
+          <span className="admin-count-chip urgent" style={{background: '#fef3c7', color: '#92400e', padding: '0.25rem 0.75rem', borderRadius: '20px'}}>
+            {kycList.length} Pending
+          </span>
         }
       />
 
-      <main className="admin-main">
-        <div className="admin-page-header">
-          <h1 className="admin-page-title">KYC Verification</h1>
-          <p className="admin-page-subtitle">Review and verify service provider identity documents.</p>
+      <main className="sm-container sm-section">
+        <header className="page-header" style={{marginBottom: '2rem'}}>
+          <h1 style={{fontSize: '2rem', fontWeight: 800, color: 'var(--sm-navy)', margin: 0}}>KYC Verification</h1>
+          <p style={{color: 'var(--sm-text-mid)', marginTop: '0.4rem'}}>Review and verify service provider identity documents</p>
+        </header>
+
+        <div style={{display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--sm-gray-border)'}}>
+          <button 
+            onClick={() => setFilter("all")}
+            style={{
+              padding: '0.5rem 1rem',
+              border: 'none',
+              background: 'none',
+              cursor: 'pointer',
+              fontWeight: filter === 'all' ? 700 : 400,
+              color: filter === 'all' ? 'var(--sm-orange)' : 'var(--sm-text-mid)',
+              borderBottom: filter === 'all' ? '2px solid var(--sm-orange)' : 'none'
+            }}
+          >
+            All ({kycList.length})
+          </button>
+          <button 
+            onClick={() => setFilter("has-docs")}
+            style={{
+              padding: '0.5rem 1rem',
+              border: 'none',
+              background: 'none',
+              cursor: 'pointer',
+              fontWeight: filter === 'has-docs' ? 700 : 400,
+              color: filter === 'has-docs' ? 'var(--sm-orange)' : 'var(--sm-text-mid)',
+              borderBottom: filter === 'has-docs' ? '2px solid var(--sm-orange)' : 'none'
+            }}
+          >
+            With Documents
+          </button>
+          <button 
+            onClick={() => setFilter("no-docs")}
+            style={{
+              padding: '0.5rem 1rem',
+              border: 'none',
+              background: 'none',
+              cursor: 'pointer',
+              fontWeight: filter === 'no-docs' ? 700 : 400,
+              color: filter === 'no-docs' ? 'var(--sm-orange)' : 'var(--sm-text-mid)',
+              borderBottom: filter === 'no-docs' ? '2px solid var(--sm-orange)' : 'none'
+            }}
+          >
+            No Documents
+          </button>
         </div>
 
-        <div className="kyc-stats-row">
-          {["all", "pending", "approved", "rejected"].map((s) => (
-            <div
-              key={s}
-              className={`kyc-stat-pill ${filter === s ? "active" : ""}`}
-              onClick={() => setFilter(s)}
-              style={{ borderColor: s === "all" ? "#667eea" : statusColor[s] || "#667eea" }}
-            >
-              <span className="kyc-stat-count" style={{ color: s === "all" ? "#667eea" : statusColor[s] }}>
-                {counts[s]}
-              </span>
-              <span className="kyc-stat-label">{s.charAt(0).toUpperCase() + s.slice(1)}</span>
-            </div>
-          ))}
-        </div>
+        {filteredList.length === 0 ? (
+          <div className="sm-card" style={{textAlign: 'center', padding: '3rem'}}>
+            <div style={{fontSize: '3rem', marginBottom: '1rem'}}>✅</div>
+            <h3 style={{color: 'var(--sm-navy)', marginBottom: '0.5rem'}}>No Pending Verifications</h3>
+            <p style={{color: 'var(--sm-text-mid)'}}>All service providers have been verified</p>
+          </div>
+        ) : (
+          <div className="sm-grid" style={{gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem'}}>
+            {filteredList.map((provider) => (
+              <div key={provider.id} className="sm-card" style={{padding: '1.5rem'}}>
+                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem'}}>
+                  <div style={{display: 'flex', gap: '0.75rem', alignItems: 'center'}}>
+                    <div style={{
+                      width: '50px', 
+                      height: '50px', 
+                      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '1.2rem',
+                      fontWeight: 'bold'
+                    }}>
+                      {provider.avatar}
+                    </div>
+                    <div>
+                      <h3 style={{margin: 0, fontSize: '1.1rem', fontWeight: 700}}>{provider.name}</h3>
+                      <p style={{margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--sm-text-light)'}}>
+                        Phone: {provider.phone}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="sm-badge sm-badge-warning" style={{background: '#fef3c7', color: '#92400e'}}>
+                    Pending
+                  </span>
+                </div>
 
-        <div className="admin-table-card">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Provider</th>
-                <th>Category</th>
-                <th>Submitted</th>
-                <th>Documents</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr><td colSpan={6} className="admin-empty">No KYC requests found.</td></tr>
-              ) : (
-                filtered.map((item) => {
-                  const docsSubmitted = Object.values(item.docs).filter(Boolean).length;
-                  return (
-                    <tr key={item.id} className="admin-table-row">
-                      <td>
-                        <div className="admin-user-cell">
-                          <div className="admin-avatar-sm" style={{ background: "linear-gradient(135deg,#f093fb,#f5576c)" }}>
-                            {item.avatar}
-                          </div>
-                          <div>
-                            <div className="admin-user-name">{item.name}</div>
-                            <div className="admin-user-email">{item.email}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="admin-td-muted">{item.category}</td>
-                      <td className="admin-td-muted">{item.submitted}</td>
-                      <td>
-                        <div className="kyc-doc-indicators">
-                          {Object.entries(item.docs).map(([key, val]) => (
-                            <span
-                              key={key}
-                              className={`kyc-doc-dot ${val ? "doc-ok" : "doc-missing"}`}
-                              title={`${docLabels[key]}: ${val ? "Submitted" : "Missing"}`}
-                            />
-                          ))}
-                          <span className="kyc-doc-count">{docsSubmitted}/4</span>
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`admin-status-badge ${item.status}`}>{item.status}</span>
-                      </td>
-                      <td>
-                        <button className="sm-btn sm-btn-outline" style={{padding: '0.4rem 1rem', fontSize: '0.75rem'}} onClick={() => openDetail(item)}>
-                          Review Details
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+                {provider.categories && provider.categories.length > 0 && (
+                  <div style={{marginBottom: '1rem'}}>
+                    <div style={{fontSize: '0.75rem', color: 'var(--sm-text-light)', marginBottom: '0.5rem'}}>Categories:</div>
+                    <div style={{display: 'flex', flexWrap: 'wrap', gap: '0.25rem'}}>
+                      {provider.categories.slice(0, 3).map((cat, idx) => (
+                        <span key={idx} className="sm-badge" style={{background: '#dbeafe', color: '#1e40af', fontSize: '0.7rem'}}>
+                          {cat}
+                        </span>
+                      ))}
+                      {provider.categories.length > 3 && (
+                        <span className="sm-badge" style={{fontSize: '0.7rem'}}>+{provider.categories.length - 3}</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div style={{marginBottom: '1rem', padding: '0.75rem', background: 'var(--sm-gray-light)', borderRadius: '8px'}}>
+                  <div style={{fontSize: '0.75rem', color: 'var(--sm-text-light)', marginBottom: '0.5rem'}}>Documents:</div>
+                  <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap'}}>
+                    {provider.citizenship_number && <span style={{fontSize: '0.7rem'}}>✓ Citizenship</span>}
+                    {provider.pan_number && <span style={{fontSize: '0.7rem'}}>✓ PAN Card</span>}
+                    {provider.license_number && <span style={{fontSize: '0.7rem'}}>✓ License</span>}
+                    {provider.insurance_provider && <span style={{fontSize: '0.7rem'}}>✓ Insurance</span>}
+                    {getDocumentCount(provider) === 0 && (
+                      <span style={{fontSize: '0.7rem', color: 'var(--sm-text-light)'}}>No documents uploaded</span>
+                    )}
+                  </div>
+                </div>
+
+                {provider.years_experience > 0 && (
+                  <div style={{marginBottom: '1rem', fontSize: '0.85rem'}}>
+                    Experience: {provider.years_experience} years
+                  </div>
+                )}
+
+                <div style={{fontSize: '0.7rem', color: 'var(--sm-text-light)', marginBottom: '1rem'}}>
+                  Submitted: {new Date(provider.created_at).toLocaleDateString()}
+                </div>
+
+                <div style={{display: 'flex', gap: '0.75rem'}}>
+                  <button 
+                    className="sm-btn sm-btn-primary" 
+                    style={{flex: 1, background: '#10b981'}}
+                    onClick={() => openActionModal(provider, 'approve')}
+                  >
+                    Approve
+                  </button>
+                  <button 
+                    className="sm-btn sm-btn-outline" 
+                    style={{flex: 1, color: '#ef4444', borderColor: '#ef4444'}}
+                    onClick={() => openActionModal(provider, 'reject')}
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </main>
 
-      {selected && (
-        <div className="admin-modal-overlay" onClick={() => setSelected(null)}>
-          <div className="kyc-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="kyc-modal-header">
-              <div className="kyc-modal-avatar">{selected.avatar}</div>
-              <div>
-                <h3 className="kyc-modal-name">{selected.name}</h3>
-                <div className="kyc-modal-meta">{selected.category} · {selected.address}</div>
-              </div>
-              <button className="kyc-modal-close" onClick={() => setSelected(null)}>✕</button>
-            </div>
-            <div className="kyc-modal-info-grid">
-              <div className="kyc-info-item"><span className="kyc-info-label">Email</span><span className="kyc-info-value">{selected.email}</span></div>
-              <div className="kyc-info-item"><span className="kyc-info-label">Phone</span><span className="kyc-info-value">{selected.phone}</span></div>
-              <div className="kyc-info-item"><span className="kyc-info-label">Date of Birth</span><span className="kyc-info-value">{selected.dob}</span></div>
-              <div className="kyc-info-item"><span className="kyc-info-label">Submitted</span><span className="kyc-info-value">{selected.submitted}</span></div>
-            </div>
-            <div className="kyc-docs-section">
-              <h4 className="kyc-docs-title">Document Checklist</h4>
-              <div className="kyc-docs-grid">
-                {Object.entries(selected.docs).map(([key, val]) => (
-                  <div 
-                    key={key} 
-                    className={`kyc-doc-card ${val ? "doc-card-ok" : "doc-card-missing"}`}
-                    onClick={() => val && setViewingDoc({ type: key, label: docLabels[key] })}
-                    style={{ cursor: val ? 'pointer' : 'default' }}
-                  >
-                    <div className="kyc-doc-card-header">
-                      <span className="kyc-doc-card-icon">{val ? "📄" : "❌"}</span>
-                      <span className="kyc-doc-card-label">{docLabels[key]}</span>
-                    </div>
-                    {val && <span className="kyc-doc-view-hint">Click to View Document</span>}
-                    <span className="kyc-doc-card-status">{val ? "Submitted" : "Missing"}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="kyc-note-section">
-              <label className="payment-label">Admin Note</label>
+      {actionType === 'approve' && selectedProvider && (
+        <div className="sm-overlay animate-fade" onClick={() => setActionType(null)} style={{
+          position: 'fixed', 
+          inset: 0, 
+          background: 'rgba(15, 23, 42, 0.7)', 
+          backdropFilter: 'blur(4px)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          zIndex: 1000
+        }}>
+          <div className="sm-card" style={{maxWidth: '500px', width: '90%'}} onClick={e => e.stopPropagation()}>
+            <h3 style={{fontWeight: 800, color: 'var(--sm-navy)', marginBottom: '0.5rem'}}>Approve Provider</h3>
+            <p style={{color: 'var(--sm-text-mid)', marginBottom: '1.5rem'}}>
+              Approve <strong>{selectedProvider.name}</strong> as a verified service provider?
+            </p>
+            
+            <div style={{marginBottom: '1.5rem'}}>
+              <label className="sm-label" style={{marginBottom: '0.5rem', display: 'block'}}>Notes (Optional)</label>
               <textarea
-                className="payment-textarea"
+                className="sm-input"
                 value={noteInput}
                 onChange={(e) => setNoteInput(e.target.value)}
-                placeholder="Add a verification note..."
-                rows={2}
+                placeholder="Add any notes about this verification..."
+                rows={3}
               />
             </div>
-            <div className="kyc-modal-actions">
-              <button className="sm-btn sm-btn-outline" style={{flex: 1}} onClick={() => handleAction(selected.id, "rejected")}>✕ Reject</button>
-              <button className="sm-btn sm-btn-primary" style={{flex: 1}} onClick={() => handleAction(selected.id, "approved")}>✓ Approve KYC</button>
+            
+            <div style={{display: 'flex', gap: '0.75rem'}}>
+              <button className="sm-btn sm-btn-ghost" style={{flex: 1}} onClick={() => setActionType(null)}>
+                Cancel
+              </button>
+              <button className="sm-btn sm-btn-primary" style={{flex: 1, background: '#10b981'}} onClick={handleApprove}>
+                Confirm Approve
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* --- Document Preview Portal --- */}
-      {viewingDoc && (
-        <div className="sm-overlay animate-fade" onClick={() => setViewingDoc(null)} style={{zIndex: 2000, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(8px)'}}>
-          <div className="sm-modal sm-card" onClick={e => e.stopPropagation()} style={{maxWidth: '800px', width: '90%', padding: '0', overflow: 'hidden'}}>
-            <div style={{padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--sm-gray-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-              <h3 style={{margin: 0, fontSize: '1.1rem', color: 'var(--sm-navy)'}}>{viewingDoc.label}</h3>
-              <button className="sm-btn-ghost" onClick={() => setViewingDoc(null)} style={{padding: '0.5rem'}}>✕</button>
+      {actionType === 'reject' && selectedProvider && (
+        <div className="sm-overlay animate-fade" onClick={() => setActionType(null)} style={{
+          position: 'fixed', 
+          inset: 0, 
+          background: 'rgba(15, 23, 42, 0.7)', 
+          backdropFilter: 'blur(4px)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          zIndex: 1000
+        }}>
+          <div className="sm-card" style={{maxWidth: '500px', width: '90%'}} onClick={e => e.stopPropagation()}>
+            <h3 style={{fontWeight: 800, color: 'var(--sm-navy)', marginBottom: '0.5rem'}}>Reject Provider</h3>
+            <p style={{color: 'var(--sm-text-mid)', marginBottom: '1.5rem'}}>
+              Reject <strong>{selectedProvider.name}</strong>'s verification request?
+            </p>
+            
+            <div style={{marginBottom: '1.5rem'}}>
+              <label className="sm-label" style={{marginBottom: '0.5rem', display: 'block'}}>Reason for Rejection *</label>
+              <textarea
+                className="sm-input"
+                value={reasonInput}
+                onChange={(e) => setReasonInput(e.target.value)}
+                placeholder="Explain why this verification is being rejected..."
+                rows={3}
+                required
+              />
             </div>
-            <div style={{padding: '2rem', background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px'}}>
-              {/* Mock visualization of a government document */}
-              <div style={{
-                width: '100%', 
-                maxWidth: '600px', 
-                aspectRatio: '1.6 / 1', 
-                background: '#fff', 
-                borderRadius: '12px', 
-                boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
-                padding: '2rem',
-                border: '1px solid #e2e8f0',
-                position: 'relative',
-                overflow: 'hidden'
-              }}>
-                <div style={{display: 'flex', gap: '1.5rem'}}>
-                  <div style={{width: '120px', height: '140px', background: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem'}}>👤</div>
-                  <div style={{flex: 1}}>
-                    <div style={{height: '14px', width: '70%', background: 'var(--sm-navy)', opacity: 0.8, borderRadius: '4px', marginBottom: '1rem'}}></div>
-                    <div style={{height: '10px', width: '90%', background: '#cbd5e1', borderRadius: '4px', marginBottom: '0.6rem'}}></div>
-                    <div style={{height: '10px', width: '85%', background: '#cbd5e1', borderRadius: '4px', marginBottom: '0.6rem'}}></div>
-                    <div style={{height: '10px', width: '40%', background: '#cbd5e1', borderRadius: '4px', marginBottom: '1.5rem'}}></div>
-                    <div style={{height: '24px', width: '60%', background: '#f1f5f9', borderRadius: '6px', border: '1px solid #e2e8f0'}}></div>
-                  </div>
-                </div>
-                <div style={{marginTop: '2rem', height: '60px', width: '100%', background: 'repeating-linear-gradient(45deg, #f8fafc 0, #f8fafc 10px, #fff 10px, #fff 20px)', border: '1px solid #f1f5f9', borderRadius: '8px'}}></div>
-                <div style={{position: 'absolute', top: '1.5rem', right: '1.5rem', opacity: 0.1, fontSize: '5rem'}}>🇳🇵</div>
-                <div style={{position: 'absolute', bottom: '1.5rem', right: '1.5rem', fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600}}>GOVERNMENT OF NEPAL · {viewingDoc.type.toUpperCase()}</div>
-              </div>
-            </div>
-            <div style={{padding: '1.25rem 1.5rem', borderTop: '1px solid var(--sm-gray-border)', background: '#fff', textAlign: 'right'}}>
-              <button className="sm-btn sm-btn-primary" onClick={() => setViewingDoc(null)}>Done Reviewing</button>
+            
+            <div style={{display: 'flex', gap: '0.75rem'}}>
+              <button className="sm-btn sm-btn-ghost" style={{flex: 1}} onClick={() => setActionType(null)}>
+                Cancel
+              </button>
+              <button className="sm-btn sm-btn-danger" style={{flex: 1}} onClick={handleReject}>
+                Confirm Reject
+              </button>
             </div>
           </div>
         </div>

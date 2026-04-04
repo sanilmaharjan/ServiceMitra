@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SPNavbar from "../../Components/SPNavbar";
 import "../../Styles/SP.css";
 import { AuthContext } from "../../context/authContext";
-import api from "../../utils/api";
 import bidsApi from "../../utils/bidsApi";
 
 export default function SPBids() {

@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
-import UserNavbar from "../../Components/UserNavbar";
+import { useContext, useEffect, useState } from "react";
 import Footer from "../../Components/Footer";
+import UserNavbar from "../../Components/UserNavbar";
 import "../../Styles/Global.css";
 import { AuthContext } from "../../context/authContext";
-import api from "../../utils/api";
 import jobsApi from "../../utils/jobsApi";
 import reviewsApi from "../../utils/reviewsApi";
 
@@ -78,7 +77,7 @@ export default function UserHistory() {
                     <div className="sm-badge sm-badge-info" style={{ marginBottom: '0.6rem', fontSize: '0.65rem' }}>Project ID: #SM-{job.id}0{job.id}</div>
                     <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--sm-navy)', margin: 0 }}>{job.title}</h3>
                     <div style={{ fontSize: '0.9rem', color: 'var(--sm-text-mid)', marginTop: '0.4rem' }}>
-                       with <strong style={{color: 'var(--sm-navy)'}}>{job.provider}</strong>
+                        with <strong style={{color: 'var(--sm-navy)'}}>{job.provider}</strong>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>

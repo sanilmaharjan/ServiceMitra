@@ -1,13 +1,13 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Styles/User.css";
 import { AuthContext } from "../context/authContext";
 
 function getGreeting() {
   const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return { text: "Good Morning", emoji: "☀️" };
-  if (hour >= 12 && hour < 17) return { text: "Good Afternoon", emoji: "🌤️" };
-  return { text: "Good Evening", emoji: "🌙" };
+  if (hour >= 5 && hour < 12) return { text: "Good Morning",  };
+  if (hour >= 12 && hour < 17) return { text: "Good Afternoon", };
+  return { text: "Good Evening", };
 }
 
 export default function UserNavbar({ userName = "User", backTo = "" }) {
@@ -24,7 +24,7 @@ export default function UserNavbar({ userName = "User", backTo = "" }) {
             ← Back
           </button>
         )}
-        <span className="u-brand-icon">📍</span>
+        <span className="u-brand-icon"></span>
         <span className="u-brand-text">
           Service<span>Mitra</span>
         </span>
@@ -39,10 +39,10 @@ export default function UserNavbar({ userName = "User", backTo = "" }) {
         </div>
         <div className="u-nav-actions" style={{display: 'flex', gap: '0.75rem'}}>
           <button className="sm-nav-profile" onClick={() => navigate("/user/history")}>
-            <span>📜</span> History
+            <span></span> History
           </button>
           <button className="sm-nav-profile" onClick={() => navigate("/user/profile")}>
-            <span>👤</span> Profile
+            <span></span> Profile
           </button>
           <button className="u-logout-btn" onClick={() => { logout(); navigate("/auth"); }}>
             Logout

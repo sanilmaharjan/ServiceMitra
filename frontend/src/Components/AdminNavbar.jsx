@@ -1,13 +1,13 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import "../Styles/Admin.css";
 import { AuthContext } from "../context/authContext";
 
 function getGreeting() {
   const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return { text: "Good Morning", emoji: "☀️" };
-  if (hour >= 12 && hour < 17) return { text: "Good Afternoon", emoji: "🌤️" };
-  return { text: "Good Evening", emoji: "🌙" };
+  if (hour >= 5 && hour < 12) return { text: "Good Morning",  };
+  if (hour >= 12 && hour < 17) return { text: "Good Afternoon",};
+  return { text: "Good Evening"};
 }
 
 export default function AdminNavbar({
@@ -47,7 +47,7 @@ export default function AdminNavbar({
         {rightSlot}
         {(!backTo && !onBack) && (
           <div className="admin-greeting">
-            <span className="greeting-emoji">{greeting.emoji}</span>
+            {/* <span className="greeting-emoji">{greeting.emoji}</span> */}
             <span className="greeting-text">{greeting.text}, Admin!</span>
           </div>
         )}
