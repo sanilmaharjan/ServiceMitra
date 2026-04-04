@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import CustomUser, ProviderProfile
@@ -147,3 +148,21 @@ def get_provider_detail(request,id):
     }
 
     return Response(data)
+
+
+# ----------------------------
+# GET USER PROFILE (ADDED)
+# ----------------------------
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_profile(request):
+    custom_user = request.user.custom_user
+    return Response({
+        'id': custom_user.id,
+        'name': custom_user.name,
+        'email': custom_user.user.email,
+        'phone': custom_user.phone,
+        'address': custom_user.address,
+        'role': custom_user.role,
+        'profile_image': str(custom_user.profile_image) if custom_user.profile_image else None
+    })

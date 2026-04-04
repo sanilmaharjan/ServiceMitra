@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Payment
+from .models import JobPayment as Payment
 from jobs.models import Job
 from users.models import CustomUser
 from django.contrib.auth.models import User
