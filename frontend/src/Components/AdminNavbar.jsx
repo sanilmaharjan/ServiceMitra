@@ -20,6 +20,7 @@ function getGreeting() {
  */
 export default function AdminNavbar({
   backTo,
+  onBack,
   backLabel = "← Back",
   pageIcon,
   pageTitle,
@@ -32,9 +33,9 @@ export default function AdminNavbar({
   return (
     <nav className="admin-navbar">
       <div className="admin-navbar-brand">
-        {backTo ? (
+        {(backTo || onBack) ? (
           <>
-            <button className="admin-back-btn" onClick={() => navigate(backTo)}>
+            <button className="admin-back-btn" onClick={() => onBack ? onBack() : navigate(backTo)}>
               {backLabel}
             </button>
             {pageIcon && <span className="admin-logo-icon">{pageIcon}</span>}
@@ -51,13 +52,13 @@ export default function AdminNavbar({
 
       <div className="admin-navbar-right">
         {rightSlot}
-        {!backTo && (
+        {(!backTo && !onBack) && (
           <div className="admin-greeting">
             <span className="greeting-emoji">{greeting.emoji}</span>
             <span className="greeting-text">{greeting.text}, Admin!</span>
           </div>
         )}
-        {(showLogout || !backTo) && (
+        {(showLogout || (!backTo && !onBack)) && (
           <button
             className="admin-logout-btn"
             onClick={() => navigate("/login")}

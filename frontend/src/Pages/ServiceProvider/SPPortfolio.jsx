@@ -9,151 +9,135 @@ const provider = {
   name: "Ramesh Sharma",
   category: "Electrical & Plumbing",
   location: "Kathmandu, Nepal",
-  memberSince: "January 2023",
-  bio: "Certified electrician and plumber with over 8 years of experience serving residential and commercial clients across the Kathmandu Valley. Specializing in AC installation, wiring, and plumbing solutions.",
+  memberSince: "Jan 2023",
+  bio: "Certified electrician and plumber with 8+ years experience. Specializing in AC repair, home wiring, and plumbing solutions. Reliable and high-quality service guaranteed.",
   rating: 4.8,
   totalReviews: 63,
   completedJobs: 7,
-  totalBids: 23,
-  acceptedBids: 9,
   earnings: "NRS 45,200",
-  skills: [
-    "AC Installation & Repair", "Electrical Wiring", "Pipe Fitting",
-    "Water Heater Installation", "Circuit Breaker Repair", "Solar Panel Setup",
-    "Bathroom Fitting", "Generator Repair",
+  skills: ["AC Installation", "Electrical Wiring", "Pipe Fitting", "Solar Setup", "Generator Repair"],
+  recentProjects: [
+    { title: "Solar Panel Installation", client: "Priya Lama", amount: "NRS 18,000", date: "Jan 2026" },
+    { title: "Full Electrical Rewiring", client: "Hotel Himalaya", amount: "NRS 12,500", date: "Feb 2026" },
+    { title: "Bathroom Plumbing Setup", client: "Rajan Pandey", amount: "NRS 7,200", date: "Mar 2026" },
   ],
   certifications: [
-    { title: "Certified Electrician",     issuer: "CTEVT Nepal",              year: "2018" },
-    { title: "Plumbing Excellence Award", issuer: "Nepal Plumbers Assoc.",    year: "2022" },
-    { title: "Safety Training Certified", issuer: "Labor Department Nepal",   year: "2021" },
+    { title: "Certified Master Electrician", issuer: "CTEVT Nepal", year: "2018" },
+    { title: "Advanced Plumbing Certificate", issuer: "Skill Lab, Kathmandu", year: "2021" },
+    { title: "Safety Protocol Certified", issuer: "Labor Dept. of Nepal", year: "2022" },
   ],
   reviews: [
-    { id: 1, client: "Sunita Rai",    rating: 5, comment: "Excellent work! Fixed my AC in under an hour. Very professional.", date: "March 2026", job: "AC Repair" },
-    { id: 2, client: "Anita Shrestha",rating: 5, comment: "Came on time, fixed the pipe quickly. Very reasonable price.",      date: "March 2026", job: "Pipe Leakage Fix" },
-    { id: 3, client: "Rajan Pandey",  rating: 4, comment: "Good service. Would recommend to others.",                          date: "February 2026", job: "Wiring Repair" },
-    { id: 4, client: "Priya Lama",    rating: 5, comment: "Outstanding! The best technician I've hired on ServiceMitra.",       date: "January 2026", job: "Solar Panel Setup" },
-  ],
-  completedProjects: [
-    { title: "Solar Panel Installation",  client: "Priya Lama",     amount: "NRS 18,000", date: "Jan 2026", icon: "☀️" },
-    { title: "Full Electrical Rewiring",  client: "Hotel Himalaya", amount: "NRS 12,500", date: "Feb 2026", icon: "⚡" },
-    { title: "Bathroom Plumbing Setup",   client: "Rajan Pandey",   amount: "NRS 7,200",  date: "Mar 2026", icon: "🚿" },
-    { title: "AC Installation x3 Units", client: "Office Complex",  amount: "NRS 9,500",  date: "Mar 2026", icon: "❄️" },
+    { id: 1, client: "Sunita Rai", rating: 5, comment: "Excellent work! Fixed my AC in under an hour. Very professional.", date: "March 2026" },
+    { id: 2, client: "Anita Shrestha", rating: 5, comment: "Came on time, fixed the pipe quickly.", date: "March 2026" },
+    { id: 3, client: "Bikram Thapa", rating: 4, comment: "Good quality work on the painting. Friendly professional.", date: "Feb 2026" },
   ],
 };
 
-function StarRating({ rating }) {
-  return (
-    <div className="sp-stars">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <span key={s} className={s <= Math.round(rating) ? "sp-star filled" : "sp-star"}>★</span>
-      ))}
-      <span className="sp-rating-num">{rating}</span>
-    </div>
-  );
-}
-
 export default function SPPortfolio() {
   const navigate = useNavigate();
-  const initials = provider.name.split(" ").map((n) => n[0]).join("");
+  const initials = provider.name.split(" ").map(n => n[0]).join("");
 
   return (
-    <div className="sp-layout">
+    <div className="provider-layout animate-fade">
       <SPNavbar providerName={PROVIDER_NAME} backTo="/provider" />
 
-      <main className="sp-main">
-        {/* Hero Banner */}
-        <div className="sp-portfolio-hero">
-          <div className="sp-portfolio-hero-bg" />
-          <div className="sp-portfolio-hero-content">
-            <div className="sp-portfolio-avatar-lg">{initials}</div>
-            <div className="sp-portfolio-info">
-              <h1 className="sp-portfolio-name">{provider.name}</h1>
-              <span className="sp-portfolio-category">{provider.category}</span>
-              <p className="sp-portfolio-bio">{provider.bio}</p>
-              <div className="sp-portfolio-hero-meta">
-                <span>📍 {provider.location}</span>
-                <span>📅 Member since {provider.memberSince}</span>
-                <span>⭐ {provider.rating} ({provider.totalReviews} reviews)</span>
+      <main className="sm-container sm-section" style={{maxWidth: '1000px'}}>
+        {/* --- Hero Section --- */}
+        <section className="sm-card" style={{padding: '3rem', display: 'flex', gap: '2.5rem', alignItems: 'center', marginBottom: '2.5rem', background: 'var(--sm-navy)', color: '#fff'}}>
+          <div style={{width: '100px', height: '100px', background: 'var(--sm-white)', color: 'var(--sm-navy)', borderRadius: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 900}}>{initials}</div>
+          <div style={{flex: 1}}>
+            <h1 style={{fontSize: '2.2rem', fontWeight: 800, margin: '0 0 0.5rem'}}>{provider.name}</h1>
+            <p style={{fontSize: '1.1rem', opacity: 0.9, margin: '0 0 1rem'}}>{provider.category} · 📍 {provider.location}</p>
+            <div style={{display: 'flex', gap: '1.5rem', fontSize: '0.9rem', opacity: 0.8}}>
+              <span>⭐ {provider.rating} ({provider.totalReviews} Reviews)</span>
+              <span>📅 {provider.memberSince}</span>
+              <span>✅ {provider.completedJobs} Jobs</span>
+            </div>
+          </div>
+        </section>
+
+        <div className="sm-grid" style={{gridTemplateColumns: '1.5fr 1fr'}}>
+          <div>
+            {/* --- Bio --- */}
+            <section className="sm-card" style={{marginBottom: '2rem'}}>
+              <h3 style={{fontSize: '1.25rem', fontWeight: 800, color: 'var(--sm-navy)', marginBottom: '1rem'}}>Professional Bio</h3>
+              <p style={{fontSize: '1rem', color: 'var(--sm-text-mid)', lineHeight: '1.7', margin: 0}}>{provider.bio}</p>
+            </section>
+
+            {/* --- Certificates Section --- */}
+            <section className="sm-card" style={{marginBottom: '2rem'}}>
+              <h3 style={{fontSize: '1.25rem', fontWeight: 800, color: 'var(--sm-navy)', marginBottom: '1.5rem'}}>Certifications</h3>
+              <div className="sm-grid" style={{gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem'}}>
+                {provider.certifications.map((cert, i) => (
+                  <div key={i} style={{padding: '1.25rem', border: '1px solid var(--sm-gray-border)', borderRadius: '12px', background: 'var(--sm-gray-light)'}}>
+                    <div style={{fontSize: '1.5rem', marginBottom: '0.5rem'}}>🏆</div>
+                    <div style={{fontWeight: 700, fontSize: '0.95rem', color: 'var(--sm-navy)', marginBottom: '0.25rem'}}>{cert.title}</div>
+                    <div style={{fontSize: '0.8rem', color: 'var(--sm-text-light)'}}>{cert.issuer} · {cert.year}</div>
+                  </div>
+                ))}
               </div>
-            </div>
-          </div>
-        </div>
+            </section>
 
-        {/* Stats Row */}
-        <div className="sp-portfolio-stats-row">
-          {[
-            { icon: "✅", value: provider.completedJobs, label: "Completed Jobs" },
-            { icon: "🏷️", value: provider.totalBids,    label: "Total Bids" },
-            { icon: "🎯", value: provider.acceptedBids,  label: "Bids Won" },
-            { icon: "💰", value: provider.earnings,      label: "Total Earned" },
-          ].map((s, i) => (
-            <div key={i} className="sp-portfolio-stat-card">
-              <span className="sp-portfolio-stat-icon">{s.icon}</span>
-              <span className="sp-portfolio-stat-value">{s.value}</span>
-              <span className="sp-portfolio-stat-label">{s.label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Two-column grid */}
-        <div className="sp-portfolio-grid">
-          <div className="sp-portfolio-section">
-            <h3 className="sp-portfolio-section-title">🛠️ Skills & Expertise</h3>
-            <div className="sp-portfolio-skills">
-              {provider.skills.map((skill) => (
-                <span key={skill} className="sp-portfolio-skill-tag">{skill}</span>
-              ))}
-            </div>
-          </div>
-
-          <div className="sp-portfolio-section">
-            <h3 className="sp-portfolio-section-title">🏅 Certifications</h3>
-            <div className="sp-certifications-list">
-              {provider.certifications.map((cert) => (
-                <div key={cert.title} className="sp-cert-item">
-                  <div className="sp-cert-icon">🏅</div>
-                  <div>
-                    <div className="sp-cert-title">{cert.title}</div>
-                    <div className="sp-cert-issuer">{cert.issuer} · {cert.year}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="sp-portfolio-section">
-            <h3 className="sp-portfolio-section-title">🎉 Completed Projects</h3>
-            <div className="sp-projects-list">
-              {provider.completedProjects.map((proj) => (
-                <div key={proj.title} className="sp-project-item">
-                  <div className="sp-project-icon">{proj.icon}</div>
-                  <div className="sp-project-info">
-                    <div className="sp-project-title">{proj.title}</div>
-                    <div className="sp-project-meta">{proj.client} · {proj.date}</div>
-                  </div>
-                  <div className="sp-project-amount">{proj.amount}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="sp-portfolio-section">
-            <h3 className="sp-portfolio-section-title">⭐ Client Reviews</h3>
-            <div className="sp-reviews-list">
-              {provider.reviews.map((review) => (
-                <div key={review.id} className="sp-review-item">
-                  <div className="sp-review-header">
-                    <div className="sp-review-avatar">{review.client[0]}</div>
-                    <div>
-                      <div className="sp-review-client">{review.client}</div>
-                      <div className="sp-review-job">{review.job} · {review.date}</div>
+            {/* --- Client Reviews --- */}
+            <section className="sm-card">
+              <h3 style={{fontSize: '1.25rem', fontWeight: 800, color: 'var(--sm-navy)', marginBottom: '1.5rem'}}>Client Reviews</h3>
+              <div className="sm-grid">
+                {provider.reviews.map((rev, i) => (
+                  <div key={rev.id} style={{paddingBottom: '1.25rem', borderBottom: i < provider.reviews.length - 1 ? '1px solid var(--sm-gray-border)' : 'none', marginBottom: i < provider.reviews.length - 1 ? '1.25rem' : '0'}}>
+                    <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem'}}>
+                      <div style={{fontWeight: 700, fontSize: '0.95rem'}}>{rev.client}</div>
+                      <div style={{color: 'var(--sm-orange)', fontWeight: 800}}>⭐ {rev.rating}</div>
                     </div>
-                    <StarRating rating={review.rating} />
+                    <p style={{margin: '0 0 0.5rem', fontSize: '0.85rem', color: 'var(--sm-text-mid)', fontStyle: 'italic'}}>"{rev.comment}"</p>
+                    <div style={{fontSize: '0.75rem', color: 'var(--sm-text-light)'}}>{rev.date}</div>
                   </div>
-                  <p className="sp-review-comment">"{review.comment}"</p>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          <div className="sm-grid" style={{alignContent: 'start'}}>
+            {/* --- Stats Summary --- */}
+            <section className="sm-card" style={{marginBottom: '2rem'}}>
+              <h3 style={{fontSize: '1.1rem', fontWeight: 800, color: 'var(--sm-navy)', marginBottom: '1.25rem'}}>Performance</h3>
+              <div className="sm-grid" style={{gap: '1rem'}}>
+                <div style={{display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--sm-gray-light)', borderRadius: '8px'}}>
+                   <span style={{color: 'var(--sm-text-light)', fontSize: '0.85rem'}}>Earnings</span>
+                   <span style={{fontWeight: 800, color: 'var(--sm-success)'}}>{provider.earnings}</span>
                 </div>
-              ))}
-            </div>
+                <div style={{display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--sm-gray-light)', borderRadius: '8px'}}>
+                   <span style={{color: 'var(--sm-text-light)', fontSize: '0.85rem'}}>Experience</span>
+                   <span style={{fontWeight: 800, color: 'var(--sm-navy)'}}>8+ Years</span>
+                </div>
+                <div style={{display: 'flex', justifyContent: 'space-between', padding: '0.75rem', background: 'var(--sm-gray-light)', borderRadius: '8px'}}>
+                   <span style={{color: 'var(--sm-text-light)', fontSize: '0.85rem'}}>Success Rate</span>
+                   <span style={{fontWeight: 800, color: 'var(--sm-orange)'}}>96%</span>
+                </div>
+              </div>
+            </section>
+
+            {/* --- Skills --- */}
+            <section className="sm-card" style={{marginBottom: '2rem'}}>
+              <h3 style={{fontSize: '1.1rem', fontWeight: 800, color: 'var(--sm-navy)', marginBottom: '1rem'}}>Expertise</h3>
+              <div style={{display: 'flex', flexWrap: 'wrap', gap: '0.5rem'}}>
+                {provider.skills.map(s => (
+                  <span key={s} className="sm-badge sm-badge-info" style={{background: 'var(--sm-navy-light)', color: 'var(--sm-navy)', textTransform: 'none'}}>{s}</span>
+                ))}
+              </div>
+            </section>
+
+            {/* --- Recent Work --- */}
+            <section className="sm-card">
+              <h3 style={{fontSize: '1.1rem', fontWeight: 800, color: 'var(--sm-navy)', marginBottom: '1rem'}}>Recent History</h3>
+              <div className="sm-grid" style={{gap: '0.75rem'}}>
+                {provider.recentProjects.map((p, i) => (
+                  <div key={i} style={{fontSize: '0.85rem', color: 'var(--sm-text-mid)', borderLeft: '3px solid var(--sm-orange)', paddingLeft: '0.75rem'}}>
+                     <div style={{fontWeight: 700, color: 'var(--sm-text-dark)'}}>{p.title}</div>
+                     <div style={{fontSize: '0.75rem', color: 'var(--sm-text-light)'}}>{p.date}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
         </div>
       </main>
