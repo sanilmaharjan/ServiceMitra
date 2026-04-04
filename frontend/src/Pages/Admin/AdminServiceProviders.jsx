@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
 
 const initialProviders = [
@@ -90,16 +91,14 @@ export default function AdminServiceProviders() {
 
   return (
     <div className="admin-layout">
-      <nav className="admin-navbar">
-        <div className="admin-navbar-brand">
-          <button className="admin-back-btn" onClick={() => navigate("/admin")}>← Back</button>
-          <span className="admin-logo-icon">🛠️</span>
-          <span className="admin-brand-text">Service Providers</span>
-        </div>
-        <div className="admin-navbar-right">
+      <AdminNavbar
+        backTo="/admin"
+        pageIcon="🛠️"
+        pageTitle="Service Providers"
+        rightSlot={
           <span className="admin-count-chip">{providers.length} Providers</span>
-        </div>
-      </nav>
+        }
+      />
 
       <main className="admin-main">
         <div className="admin-page-header">
@@ -126,7 +125,6 @@ export default function AdminServiceProviders() {
           </div>
         </div>
 
-        {/* Provider Cards */}
         <div className="provider-cards-grid">
           {filtered.length === 0 ? (
             <p className="admin-empty-msg">No service providers found.</p>
@@ -150,22 +148,13 @@ export default function AdminServiceProviders() {
                     <span>✅ {p.jobs} jobs</span>
                   </div>
                   <div className="provider-actions">
-                    <button
-                      className="provider-btn-portfolio"
-                      onClick={() => navigate(`/admin/service-providers/${p.id}/portfolio`, { state: { provider: p } })}
-                    >
+                    <button className="provider-btn-portfolio" onClick={() => navigate(`/admin/service-providers/${p.id}/portfolio`, { state: { provider: p } })}>
                       View Portfolio
                     </button>
-                    <button
-                      className="provider-btn-pay"
-                      onClick={() => navigate(`/admin/payments/${p.id}`, { state: { provider: p } })}
-                    >
+                    <button className="provider-btn-pay" onClick={() => navigate(`/admin/payments/${p.id}`, { state: { provider: p } })}>
                       Pay
                     </button>
-                    <button
-                      className="admin-remove-btn"
-                      onClick={() => setRemoveConfirm(p.id)}
-                    >
+                    <button className="admin-remove-btn" onClick={() => setRemoveConfirm(p.id)}>
                       Remove
                     </button>
                   </div>

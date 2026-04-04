@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
 
 const initialUsers = [
@@ -35,18 +36,14 @@ export default function AdminUsers() {
 
   return (
     <div className="admin-layout">
-      <nav className="admin-navbar">
-        <div className="admin-navbar-brand">
-          <button className="admin-back-btn" onClick={() => navigate("/admin")}>
-            ← Back
-          </button>
-          <span className="admin-logo-icon">📍</span>
-          <span className="admin-brand-text">Manage Users</span>
-        </div>
-        <div className="admin-navbar-right">
+      <AdminNavbar
+        backTo="/admin"
+        pageIcon="👥"
+        pageTitle="Manage Users"
+        rightSlot={
           <span className="admin-count-chip">{users.length} Users</span>
-        </div>
-      </nav>
+        }
+      />
 
       <main className="admin-main">
         <div className="admin-page-header">
@@ -54,7 +51,6 @@ export default function AdminUsers() {
           <p className="admin-page-subtitle">View and manage all registered users on the platform.</p>
         </div>
 
-        {/* Controls */}
         <div className="admin-controls">
           <div className="admin-search-wrap">
             <span className="admin-search-icon">🔍</span>
@@ -78,7 +74,6 @@ export default function AdminUsers() {
           </div>
         </div>
 
-        {/* Table */}
         <div className="admin-table-card">
           <table className="admin-table">
             <thead>
@@ -116,15 +111,10 @@ export default function AdminUsers() {
                       <span className="admin-services-badge">{user.services}</span>
                     </td>
                     <td>
-                      <span className={`admin-status-badge ${user.status}`}>
-                        {user.status}
-                      </span>
+                      <span className={`admin-status-badge ${user.status}`}>{user.status}</span>
                     </td>
                     <td>
-                      <button
-                        className="admin-remove-btn"
-                        onClick={() => setRemoveConfirm(user.id)}
-                      >
+                      <button className="admin-remove-btn" onClick={() => setRemoveConfirm(user.id)}>
                         Remove
                       </button>
                     </td>
@@ -136,7 +126,6 @@ export default function AdminUsers() {
         </div>
       </main>
 
-      {/* Confirm Modal */}
       {removeConfirm && (
         <div className="admin-modal-overlay" onClick={() => setRemoveConfirm(null)}>
           <div className="admin-modal" onClick={(e) => e.stopPropagation()}>

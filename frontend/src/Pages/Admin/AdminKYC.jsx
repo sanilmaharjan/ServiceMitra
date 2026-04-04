@@ -1,62 +1,38 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
 
 const initialKYC = [
   {
     id: 1, name: "Tech Appliance Fix", email: "techfix@email.com", phone: "+977-9834444444",
     category: "Appliance Repair", avatar: "TF", submitted: "Apr 3, 2025", status: "pending",
-    docs: {
-      citizenship: true,
-      pan: true,
-      selfie: true,
-      certificate: false,
-    },
-    address: "Koteshwor, Kathmandu",
-    dob: "1990-05-14",
-    notes: "",
+    docs: { citizenship: true, pan: true, selfie: true, certificate: false },
+    address: "Koteshwor, Kathmandu", dob: "1990-05-14", notes: "",
   },
   {
     id: 2, name: "Maya Beauty Parlour", email: "maya@email.com", phone: "+977-9867654321",
     category: "Beauty & Wellness", avatar: "MB", submitted: "Apr 2, 2025", status: "pending",
-    docs: {
-      citizenship: true,
-      pan: false,
-      selfie: true,
-      certificate: true,
-    },
-    address: "Baneshwor, Kathmandu",
-    dob: "1995-08-22",
-    notes: "",
+    docs: { citizenship: true, pan: false, selfie: true, certificate: true },
+    address: "Baneshwor, Kathmandu", dob: "1995-08-22", notes: "",
   },
   {
     id: 3, name: "Quick Cleaning Services", email: "clean@email.com", phone: "+977-9856789012",
     category: "Cleaning", avatar: "QC", submitted: "Apr 1, 2025", status: "pending",
-    docs: {
-      citizenship: true,
-      pan: true,
-      selfie: false,
-      certificate: false,
-    },
-    address: "Lalitpur",
-    dob: "1988-11-30",
-    notes: "",
+    docs: { citizenship: true, pan: true, selfie: false, certificate: false },
+    address: "Lalitpur", dob: "1988-11-30", notes: "",
   },
   {
     id: 4, name: "Ramesh Electricals", email: "ramesh@email.com", phone: "+977-9801111111",
     category: "Electrician", avatar: "RE", submitted: "Mar 15, 2025", status: "approved",
     docs: { citizenship: true, pan: true, selfie: true, certificate: true },
-    address: "Thamel, Kathmandu",
-    dob: "1985-02-10",
-    notes: "All documents verified successfully.",
+    address: "Thamel, Kathmandu", dob: "1985-02-10", notes: "All documents verified successfully.",
   },
   {
     id: 5, name: "Sunita Plumbing Works", email: "sunita@email.com", phone: "+977-9812222222",
     category: "Plumber", avatar: "SP", submitted: "Mar 10, 2025", status: "rejected",
     docs: { citizenship: true, pan: false, selfie: true, certificate: false },
-    address: "Lalitpur",
-    dob: "1992-07-18",
-    notes: "PAN card missing. Please resubmit.",
+    address: "Lalitpur", dob: "1992-07-18", notes: "PAN card missing. Please resubmit.",
   },
 ];
 
@@ -78,11 +54,7 @@ export default function AdminKYC() {
 
   const handleAction = (id, action) => {
     setKyc((prev) =>
-      prev.map((k) =>
-        k.id === id
-          ? { ...k, status: action, notes: noteInput || k.notes }
-          : k
-      )
+      prev.map((k) => k.id === id ? { ...k, status: action, notes: noteInput || k.notes } : k)
     );
     setSelected(null);
     setNoteInput("");
@@ -103,16 +75,14 @@ export default function AdminKYC() {
 
   return (
     <div className="admin-layout">
-      <nav className="admin-navbar">
-        <div className="admin-navbar-brand">
-          <button className="admin-back-btn" onClick={() => navigate("/admin")}>← Back</button>
-          <span className="admin-logo-icon">📋</span>
-          <span className="admin-brand-text">KYC Verification</span>
-        </div>
-        <div className="admin-navbar-right">
+      <AdminNavbar
+        backTo="/admin"
+        pageIcon="📋"
+        pageTitle="KYC Verification"
+        rightSlot={
           <span className="admin-count-chip urgent">{counts.pending} Pending</span>
-        </div>
-      </nav>
+        }
+      />
 
       <main className="admin-main">
         <div className="admin-page-header">
@@ -120,7 +90,6 @@ export default function AdminKYC() {
           <p className="admin-page-subtitle">Review and verify service provider identity documents.</p>
         </div>
 
-        {/* KYC Stats */}
         <div className="kyc-stats-row">
           {["all", "pending", "approved", "rejected"].map((s) => (
             <div
@@ -137,7 +106,6 @@ export default function AdminKYC() {
           ))}
         </div>
 
-        {/* KYC Table */}
         <div className="admin-table-card">
           <table className="admin-table">
             <thead>
@@ -200,7 +168,6 @@ export default function AdminKYC() {
         </div>
       </main>
 
-      {/* KYC Review Modal */}
       {selected && (
         <div className="admin-modal-overlay" onClick={() => setSelected(null)}>
           <div className="kyc-modal" onClick={(e) => e.stopPropagation()}>
@@ -212,26 +179,12 @@ export default function AdminKYC() {
               </div>
               <button className="kyc-modal-close" onClick={() => setSelected(null)}>✕</button>
             </div>
-
             <div className="kyc-modal-info-grid">
-              <div className="kyc-info-item">
-                <span className="kyc-info-label">Email</span>
-                <span className="kyc-info-value">{selected.email}</span>
-              </div>
-              <div className="kyc-info-item">
-                <span className="kyc-info-label">Phone</span>
-                <span className="kyc-info-value">{selected.phone}</span>
-              </div>
-              <div className="kyc-info-item">
-                <span className="kyc-info-label">Date of Birth</span>
-                <span className="kyc-info-value">{selected.dob}</span>
-              </div>
-              <div className="kyc-info-item">
-                <span className="kyc-info-label">Submitted</span>
-                <span className="kyc-info-value">{selected.submitted}</span>
-              </div>
+              <div className="kyc-info-item"><span className="kyc-info-label">Email</span><span className="kyc-info-value">{selected.email}</span></div>
+              <div className="kyc-info-item"><span className="kyc-info-label">Phone</span><span className="kyc-info-value">{selected.phone}</span></div>
+              <div className="kyc-info-item"><span className="kyc-info-label">Date of Birth</span><span className="kyc-info-value">{selected.dob}</span></div>
+              <div className="kyc-info-item"><span className="kyc-info-label">Submitted</span><span className="kyc-info-value">{selected.submitted}</span></div>
             </div>
-
             <div className="kyc-docs-section">
               <h4 className="kyc-docs-title">Document Checklist</h4>
               <div className="kyc-docs-grid">
@@ -244,7 +197,6 @@ export default function AdminKYC() {
                 ))}
               </div>
             </div>
-
             <div className="kyc-note-section">
               <label className="payment-label">Admin Note</label>
               <textarea
@@ -255,14 +207,9 @@ export default function AdminKYC() {
                 rows={2}
               />
             </div>
-
             <div className="kyc-modal-actions">
-              <button className="kyc-reject-btn" onClick={() => handleAction(selected.id, "rejected")}>
-                ✕ Reject
-              </button>
-              <button className="kyc-approve-btn" onClick={() => handleAction(selected.id, "approved")}>
-                ✓ Approve
-              </button>
+              <button className="kyc-reject-btn" onClick={() => handleAction(selected.id, "rejected")}>✕ Reject</button>
+              <button className="kyc-approve-btn" onClick={() => handleAction(selected.id, "approved")}>✓ Approve</button>
             </div>
           </div>
         </div>

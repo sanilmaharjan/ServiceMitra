@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
 
 const skillColors = ["#667eea", "#f093fb", "#4facfe", "#43e97b", "#f5af19", "#fa709a"];
@@ -13,11 +14,9 @@ export default function ProviderPortfolio() {
   if (!provider) {
     return (
       <div className="admin-layout">
-        <nav className="admin-navbar">
-          <button className="admin-back-btn" onClick={() => navigate("/admin/service-providers")}>← Back</button>
-        </nav>
+        <AdminNavbar backTo="/admin/service-providers" />
         <main className="admin-main">
-          <p style={{ color: "#fff", textAlign: "center", marginTop: "4rem" }}>Provider not found.</p>
+          <p style={{ color: "#888", textAlign: "center", marginTop: "4rem" }}>Provider not found.</p>
         </main>
       </div>
     );
@@ -32,13 +31,11 @@ export default function ProviderPortfolio() {
 
   return (
     <div className="admin-layout">
-      <nav className="admin-navbar">
-        <div className="admin-navbar-brand">
-          <button className="admin-back-btn" onClick={() => navigate("/admin/service-providers")}>← Back</button>
-          <span className="admin-logo-icon">📁</span>
-          <span className="admin-brand-text">Provider Portfolio</span>
-        </div>
-        <div className="admin-navbar-right">
+      <AdminNavbar
+        backTo="/admin/service-providers"
+        pageIcon="📁"
+        pageTitle="Provider Portfolio"
+        rightSlot={
           <button
             className="provider-btn-pay"
             style={{ marginRight: 0 }}
@@ -46,11 +43,10 @@ export default function ProviderPortfolio() {
           >
             💳 Pay Provider
           </button>
-        </div>
-      </nav>
+        }
+      />
 
       <main className="admin-main">
-        {/* Hero Section */}
         <div className="portfolio-hero">
           <div className="portfolio-hero-bg" />
           <div className="portfolio-hero-content">
@@ -66,7 +62,6 @@ export default function ProviderPortfolio() {
           </div>
         </div>
 
-        {/* Stats Row */}
         <div className="portfolio-stats-row">
           {statItems.map((s) => (
             <div key={s.label} className="portfolio-stat-card">
@@ -78,7 +73,6 @@ export default function ProviderPortfolio() {
         </div>
 
         <div className="portfolio-grid">
-          {/* Skills */}
           <div className="portfolio-section">
             <h2 className="portfolio-section-title">🎯 Skills & Expertise</h2>
             <div className="portfolio-skills">
@@ -86,7 +80,11 @@ export default function ProviderPortfolio() {
                 <span
                   key={skill}
                   className="portfolio-skill-tag"
-                  style={{ background: `${skillColors[i % skillColors.length]}22`, color: skillColors[i % skillColors.length], borderColor: `${skillColors[i % skillColors.length]}44` }}
+                  style={{
+                    background: `${skillColors[i % skillColors.length]}22`,
+                    color: skillColors[i % skillColors.length],
+                    borderColor: `${skillColors[i % skillColors.length]}44`,
+                  }}
                 >
                   {skill}
                 </span>
@@ -94,12 +92,11 @@ export default function ProviderPortfolio() {
             </div>
           </div>
 
-          {/* Earnings */}
           <div className="portfolio-section">
             <h2 className="portfolio-section-title">💰 Total Earnings</h2>
             <div className="portfolio-earnings-card">
               <div className="portfolio-earnings-value">
-                NPR {provider.earnings.toLocaleString()}
+                NRS {provider.earnings.toLocaleString()}
               </div>
               <div className="portfolio-earnings-label">Lifetime earnings on platform</div>
               <button
@@ -113,7 +110,6 @@ export default function ProviderPortfolio() {
           </div>
         </div>
 
-        {/* Portfolio Projects */}
         <div className="portfolio-section" style={{ marginTop: "1.5rem" }}>
           <h2 className="portfolio-section-title">🏆 Past Work</h2>
           {provider.portfolio.length === 0 ? (
@@ -131,7 +127,6 @@ export default function ProviderPortfolio() {
           )}
         </div>
 
-        {/* Contact Info */}
         <div className="portfolio-section" style={{ marginTop: "1.5rem" }}>
           <h2 className="portfolio-section-title">📞 Contact Information</h2>
           <div className="portfolio-contact-grid">

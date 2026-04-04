@@ -10,6 +10,10 @@ import AdminServiceProviders from "./Pages/Admin/AdminServiceProviders";
 import ProviderPortfolio from "./Pages/Admin/ProviderPortfolio";
 import AdminPayments from "./Pages/Admin/AdminPayments";
 import AdminKYC from "./Pages/Admin/AdminKYC";
+import SPDashboard from "./Pages/ServiceProvider/SPDashboard";
+import SPPostList from "./Pages/ServiceProvider/SPPostList";
+import SPBids from "./Pages/ServiceProvider/SPBids";
+import SPPortfolio from "./Pages/ServiceProvider/SPPortfolio";
 
 // Placeholder components so routing doesn't break
 const About = () => (
@@ -26,6 +30,7 @@ const Contact = () => (
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const isProviderRoute = location.pathname.startsWith("/provider");
 
   if (isAdminRoute) {
     return (
@@ -37,6 +42,17 @@ function App() {
         <Route path="/admin/payments" element={<AdminPayments />} />
         <Route path="/admin/payments/:id" element={<AdminPayments />} />
         <Route path="/admin/kyc" element={<AdminKYC />} />
+      </Routes>
+    );
+  }
+
+  if (isProviderRoute) {
+    return (
+      <Routes>
+        <Route path="/provider" element={<SPDashboard />} />
+        <Route path="/provider/posts" element={<SPPostList />} />
+        <Route path="/provider/bids" element={<SPBids />} />
+        <Route path="/provider/portfolio" element={<SPPortfolio />} />
       </Routes>
     );
   }
