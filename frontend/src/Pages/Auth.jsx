@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/Auth.css";
 
 const serviceCategories = [
@@ -10,6 +11,7 @@ const serviceCategories = [
 ];
 
 const Auth = () => {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState("client");
   const [categories, setCategories] = useState([]);
@@ -27,7 +29,7 @@ const Auth = () => {
         <div className="auth-form-panel login-panel">
           <h2>Sign In</h2>
           <p>Welcome back! Please sign in.</p>
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form onSubmit={(e) => { e.preventDefault(); navigate("/user"); }}>
             <input type="email" placeholder="Email" className="auth-input" required />
             <input type="password" placeholder="Password" className="auth-input" required />
             <div className="forgot-link">
@@ -40,7 +42,7 @@ const Auth = () => {
         <div className="auth-form-panel register-panel">
           <h2>Create Account</h2>
           <p>Create your ServiceMitra account</p>
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form onSubmit={(e) => { e.preventDefault(); navigate("/user"); }}>
             {/* Role toggle */}
             <div className="role-toggle">
               <button

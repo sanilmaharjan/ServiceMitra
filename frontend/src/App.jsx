@@ -19,6 +19,7 @@ import SPPortfolio from "./Pages/ServiceProvider/SPPortfolio";
 import UserDashboard from "./Pages/User/UserDashboard";
 import UserPostDetail from "./Pages/User/UserPostDetail";
 import UserProfile from "./Pages/User/UserProfile";
+import UserHistory from "./Pages/User/UserHistory";
 import SPProfile from "./Pages/ServiceProvider/SPProfile";
 import "./Styles/Global.css";
 
@@ -60,6 +61,7 @@ function App() {
         <Route path="/user" element={<UserDashboard />} />
         <Route path="/user/posts/:id" element={<UserPostDetail />} />
         <Route path="/user/profile" element={<UserProfile />} />
+        <Route path="/user/history" element={<UserHistory />} />
       </Routes>
     );
   }

@@ -74,8 +74,7 @@ export default function AdminServiceProviders() {
               </div>
 
               <div style={{display: 'flex', gap: '0.5rem', marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--sm-gray-border)'}}>
-                 <button className="sm-btn sm-btn-outline" style={{flex: 1, padding: '0.5rem', fontSize: '0.75rem'}} onClick={() => navigate(`/admin/service-providers/${p.id}/portfolio`, { state: { provider: p } })}>Portfolio</button>
-                 <button className="sm-btn sm-btn-primary" style={{flex: 1, padding: '0.5rem', fontSize: '0.75rem'}} onClick={() => navigate(`/admin/payments/${p.id}`, { state: { provider: p } })}>Pay</button>
+                 <button className="sm-btn sm-btn-primary" style={{flex: 1, padding: '0.65rem', fontSize: '0.85rem'}} onClick={() => navigate(`/admin/service-providers/${p.id}/portfolio`, { state: { provider: p } })}>View Portfolio</button>
               </div>
             </div>
           ))}

@@ -16,7 +16,13 @@ export default function AdminPayments() {
   const { id } = useParams();
   
   // State for the selected provider (if we're on the payment form page)
-  const [selectedProvider, setSelectedProvider] = useState(location.state?.provider || null);
+  const [selectedProvider, setSelectedProvider] = React.useState(() => {
+    if (location.state?.provider) return location.state.provider;
+    if (id) {
+        return MOCK_UNPAID_PROVIDERS.find(p => p.id === Number(id)) || null;
+    }
+    return null;
+  });
   
   // Payment Form States
   const [amount, setAmount] = useState("");
@@ -97,7 +103,7 @@ export default function AdminPayments() {
                     <td>{p.category}</td>
                     <td className="admin-td-muted">{p.lastWork}</td>
                     <td>
-                      <strong style={{color: 'var(--sm-success)'}}>NRS {p.balance.toLocaleString()}</strong>
+                      <strong style={{color: 'var(--sm-success)'}}>NRS {(p.balance ?? 0).toLocaleString()}</strong>
                     </td>
                     <td>
                       <button className="sm-btn sm-btn-primary" style={{padding: '0.4rem 1rem', fontSize: '0.75rem'}} 
@@ -129,7 +135,7 @@ export default function AdminPayments() {
                     <tr key={i}>
                       <td className="admin-td-muted">{p.date}</td>
                       <td className="admin-user-name">{p.name}</td>
-                      <td><strong>NRS {p.amount.toLocaleString()}</strong></td>
+                      <td><strong>NRS {(p.amount ?? 0).toLocaleString()}</strong></td>
                       <td>{p.method}</td>
                       <td><span className="admin-status-badge verified">{p.status}</span></td>
                     </tr>
@@ -147,10 +153,10 @@ export default function AdminPayments() {
   return (
     <div className="admin-layout animate-fade">
       <AdminNavbar 
-        onBack={() => setSelectedProvider(null)}
+        onBack={() => { setSelectedProvider(null); navigate("/admin/payments"); }}
         backLabel="← All Providers"
         pageIcon="💸"
-        pageTitle={`Paying ${selectedProvider?.name}`}
+        pageTitle={`Paying ${selectedProvider?.name || "Provider"}`}
       />
 
       <main className="admin-main">
@@ -182,7 +188,7 @@ export default function AdminPayments() {
                   <div className="admin-avatar-sm" style={{width: '50px', height: '50px', fontSize: '1.2rem', background: 'var(--sm-navy)'}}>{selectedProvider?.avatar}</div>
                   <div>
                     <div className="admin-user-name" style={{fontSize: '1rem'}}>{selectedProvider?.name}</div>
-                    <div className="admin-user-email">Pending Balance: <strong>NRS {selectedProvider?.balance.toLocaleString()}</strong></div>
+                    <div className="admin-user-email">Pending Balance: <strong>NRS {(selectedProvider?.balance ?? 0).toLocaleString()}</strong></div>
                   </div>
                 </div>
 

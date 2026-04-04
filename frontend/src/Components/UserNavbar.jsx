@@ -41,6 +41,9 @@ export default function UserNavbar({ userName = "User", backTo = "" }) {
           <span className="u-greeting-text">{greeting.text}, {firstName}!</span>
         </div>
         <div className="u-nav-actions" style={{display: 'flex', gap: '0.75rem'}}>
+          <button className="sm-nav-profile" onClick={() => navigate("/user/history")}>
+            <span>📜</span> History
+          </button>
           <button className="sm-nav-profile" onClick={() => navigate("/user/profile")}>
             <span>👤</span> Profile
           </button>

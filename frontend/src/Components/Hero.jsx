@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "../styles/Hero.css";
 import providerImg from "../assets/serviceprovider.jpg";
 
@@ -18,9 +19,9 @@ const Hero = () => {
               local professionals, and choose the best fit for your needs.
             </p>
             <div className="d-flex flex-wrap gap-3 mb-5">
-              <button className="btn btn-brand-orange px-4 py-3 rounded-pill fw-bold">
+              <Link to="/login" className="btn btn-brand-orange px-4 py-3 rounded-pill fw-bold text-decoration-none">
                 Post a Job for Free
-              </button>
+              </Link>
               <button className="btn btn-outline-navy px-4 py-3 rounded-pill fw-bold">
                 Explore Services
               </button>
