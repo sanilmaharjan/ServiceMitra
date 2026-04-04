@@ -11,7 +11,7 @@ const serviceCategories = [
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [role, setRole] = useState("client");       // "client" | "provider"
+  const [role, setRole] = useState("client");
   const [categories, setCategories] = useState([]);
 
   const toggleCategory = (cat) => {
