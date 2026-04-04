@@ -4,6 +4,8 @@ import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import Index from "./Pages/Index";
 import Auth from "./Pages/Auth";
+import AboutUsDetails from "./Components/AboutUsDetail";
+import ContactPage from "./Components/CantactPage";
 
 // Placeholder components so routing doesn't break
 const About = () => (
@@ -24,8 +26,8 @@ function App() {
       <main className="flex-grow-1 bg-light">
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<AboutUsDetails />} />
+          <Route path="/contact" element={<ContactPage/>} />
           <Route path="/login" element={<Auth />} />
         </Routes>
       </main>
