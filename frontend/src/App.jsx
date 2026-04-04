@@ -1,8 +1,7 @@
 import React from "react";
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
-import ProtectedRoute from "./Components/ProtectedRoute";
 import Index from "./Pages/Index";
 import Auth from "./Pages/Auth";
 import AboutUs from "./Pages/AboutUs";
@@ -20,32 +19,36 @@ import SPPortfolio from "./Pages/ServiceProvider/SPPortfolio";
 import UserDashboard from "./Pages/User/UserDashboard";
 import UserPostDetail from "./Pages/User/UserPostDetail";
 import UserProfile from "./Pages/User/UserProfile";
-import UserHistory from "./Pages/User/UserHistory";
 import SPProfile from "./Pages/ServiceProvider/SPProfile";
-import SPKYC from "./Pages/ServiceProvider/SPKYC";
+// 👇 ADD THESE IMPORTS
+import PaymentGateway from "./Pages/Payment/PaymentGateway";
+import EsewaCallback from "./Pages/Payment/EsewaCallback";
 import "./Styles/Global.css";
-import { AuthProvider } from "./context/authContext";
+
+import KhaltiSuccess from "./Pages/Payment/KhaltiSuccess";
+import EsewaFailed from "./Pages/Payment/EsewaFailed";
+import TestEsewa from "./Pages/TestEsewa";
 
 function App() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
   const isProviderRoute = location.pathname.startsWith("/provider");
   const isUserRoute = location.pathname.startsWith("/user");
-  const isAuthRoute = location.pathname === "/auth" || location.pathname === "/login";
 
   if (isAdminRoute) {
     return (
       <Routes>
-        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/service-providers" element={<AdminServiceProviders />} />
-          <Route path="/admin/service-providers/:id/portfolio" element={<ProviderPortfolio />} />
-          <Route path="/admin/payments" element={<AdminPayments />} />
-          <Route path="/admin/payments/:id" element={<AdminPayments />} />
-          <Route path="/admin/kyc" element={<AdminKYC />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/admin" replace />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/service-providers" element={<AdminServiceProviders />} />
+        <Route path="/admin/service-providers/:id/portfolio" element={<ProviderPortfolio />} />
+        <Route path="/admin/payments" element={<AdminPayments />} />
+        <Route path="/admin/payments/:id" element={<AdminPayments />} />
+        <Route path="/admin/kyc" element={<AdminKYC />} />
+       
+        <Route path="/payment/khaltiSuccess" element={<KhaltiSuccess />} />
+<Route path="/payment/failed" element={<EsewaFailed />} />
+<Route path="/test-esewa" element={<TestEsewa />} />
       </Routes>
     );
   }
@@ -53,15 +56,11 @@ function App() {
   if (isProviderRoute) {
     return (
       <Routes>
-        <Route element={<ProtectedRoute allowedRoles={["provider"]} />}>
-          <Route path="/provider" element={<SPDashboard />} />
-          <Route path="/provider/posts" element={<SPPostList />} />
-          <Route path="/provider/bids" element={<SPBids />} />
-          <Route path="/provider/portfolio" element={<SPPortfolio />} />
-          <Route path="/provider/profile" element={<SPProfile />} />
-          <Route path="/provider/kyc" element={<SPKYC />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/provider" replace />} />
+        <Route path="/provider" element={<SPDashboard />} />
+        <Route path="/provider/posts" element={<SPPostList />} />
+        <Route path="/provider/bids" element={<SPBids />} />
+        <Route path="/provider/portfolio" element={<SPPortfolio />} />
+        <Route path="/provider/profile" element={<SPProfile />} />
       </Routes>
     );
   }
@@ -69,13 +68,9 @@ function App() {
   if (isUserRoute) {
     return (
       <Routes>
-        <Route element={<ProtectedRoute allowedRoles={["client"]} />}>
-          <Route path="/user" element={<UserDashboard />} />
-          <Route path="/user/posts/:id" element={<UserPostDetail />} />
-          <Route path="/user/profile" element={<UserProfile />} />
-          <Route path="/user/history" element={<UserHistory />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/user" replace />} />
+        <Route path="/user" element={<UserDashboard />} />
+        <Route path="/user/posts/:id" element={<UserPostDetail />} />
+        <Route path="/user/profile" element={<UserProfile />} />
       </Routes>
     );
   }
@@ -88,9 +83,10 @@ function App() {
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/login" element={<Navigate to="/auth" replace />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/login" element={<Auth />} />
+          {/* 👇 ADD PAYMENT ROUTES HERE */}
+          <Route path="/payment/:jobId" element={<PaymentGateway />} />
+          <Route path="/payment/callback/:paymentType" element={<EsewaCallback />} />
         </Routes>
       </main>
       <Footer />

@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'notification',
     'rest_framework',
     'corsheaders',
-    
+    'payment',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
 ]
