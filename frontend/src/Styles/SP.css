@@ -1517,3 +1517,164 @@
   .sp-greeting { display: none; }
   .sp-main { padding: 1.5rem 1rem; }
 }
+
+/* ===========================
+   BID EDIT / WITHDRAW BUTTONS
+=========================== */
+.sp-bid-action-row {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.sp-bid-edit-btn {
+  padding: 0.35rem 0.75rem;
+  background: var(--sp-navy-soft);
+  border: 1px solid var(--sp-gray-border);
+  border-radius: 8px;
+  color: var(--sp-navy);
+  font-family: "Inter", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sp-bid-edit-btn:hover { background: var(--sp-navy-light); border-color: #c5d6e8; }
+
+.sp-bid-withdraw-btn {
+  padding: 0.35rem 0.75rem;
+  background: #fff1f2;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  color: #b91c1c;
+  font-family: "Inter", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sp-bid-withdraw-btn:hover { background: #fee2e2; }
+
+/* ===========================
+   SP PROFILE PAGE
+=========================== */
+.sp-profile-hero {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: var(--sp-navy);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1.5rem;
+  color: #fff;
+  flex-wrap: wrap;
+}
+
+.sp-profile-avatar-lg {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sp-orange), var(--sp-orange-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.sp-profile-name { font-size: 1.3rem; font-weight: 800; color: #fff; margin: 0 0 0.2rem 0; }
+.sp-profile-sub  { font-size: 0.82rem; color: rgba(255,255,255,0.6); }
+
+.sp-form-card {
+  background: var(--sp-white);
+  border: 1px solid var(--sp-gray-border);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(20,61,89,0.07);
+}
+
+.sp-form-section-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--sp-navy);
+  margin-bottom: 1.5rem;
+}
+
+.sp-form-group { margin-bottom: 1rem; }
+
+.sp-form-label {
+  display: block;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--sp-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.35rem;
+}
+
+.sp-form-input {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  background: var(--sp-navy-soft);
+  border: 1.5px solid var(--sp-gray-border);
+  border-radius: 10px;
+  color: var(--sp-text-dark);
+  font-family: "Inter", sans-serif;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.sp-form-input:focus { border-color: var(--sp-navy); background: var(--sp-white); box-shadow: 0 0 0 3px rgba(20,61,89,0.09); }
+
+.sp-form-textarea {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  background: var(--sp-navy-soft);
+  border: 1.5px solid var(--sp-gray-border);
+  border-radius: 10px;
+  color: var(--sp-text-dark);
+  font-family: "Inter", sans-serif;
+  font-size: 0.88rem;
+  outline: none;
+  resize: vertical;
+  min-height: 90px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.sp-form-textarea:focus { border-color: var(--sp-navy); background: var(--sp-white); box-shadow: 0 0 0 3px rgba(20,61,89,0.09); }
+
+.sp-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+@media (max-width: 600px) { .sp-form-row { grid-template-columns: 1fr; } }
+
+.sp-skills-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.sp-skill-pick-btn {
+  padding: 0.3rem 0.75rem;
+  background: var(--sp-navy-soft);
+  border: 1.5px solid var(--sp-gray-border);
+  border-radius: 50px;
+  color: var(--sp-text-mid);
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.sp-skill-pick-btn:hover { border-color: var(--sp-navy); color: var(--sp-navy); }
+.sp-skill-pick-btn.active {
+  background: var(--sp-navy);
+  border-color: var(--sp-navy);
+  color: #fff;
+}
+

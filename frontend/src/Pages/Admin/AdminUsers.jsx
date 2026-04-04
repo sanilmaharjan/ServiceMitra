@@ -4,14 +4,10 @@ import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
 
 const initialUsers = [
-  { id: 1, name: "Aarav Sharma", email: "aarav@email.com", phone: "+977-9801234567", joined: "Jan 12, 2025", status: "active", avatar: "AS", services: 4 },
-  { id: 2, name: "Priya Thapa", email: "priya@email.com", phone: "+977-9812345678", joined: "Feb 3, 2025", status: "active", avatar: "PT", services: 2 },
-  { id: 3, name: "Bikas Rai", email: "bikas@email.com", phone: "+977-9823456789", joined: "Mar 15, 2025", status: "inactive", avatar: "BR", services: 7 },
-  { id: 4, name: "Sita Gurung", email: "sita@email.com", phone: "+977-9834567890", joined: "Mar 20, 2025", status: "active", avatar: "SG", services: 1 },
-  { id: 5, name: "Rajan Maharjan", email: "rajan@email.com", phone: "+977-9845678901", joined: "Apr 1, 2025", status: "active", avatar: "RM", services: 3 },
-  { id: 6, name: "Anita Poudel", email: "anita@email.com", phone: "+977-9856789012", joined: "Apr 2, 2025", status: "inactive", avatar: "AP", services: 0 },
-  { id: 7, name: "Dipesh KC", email: "dipesh@email.com", phone: "+977-9867890123", joined: "Apr 3, 2025", status: "active", avatar: "DK", services: 5 },
-  { id: 8, name: "Rekha Shrestha", email: "rekha@email.com", phone: "+977-9878901234", joined: "Apr 4, 2025", status: "active", avatar: "RS", services: 2 },
+  { id: 1, name: "Aarav Sharma", email: "aarav@email.com", avatar: "AS", joined: "Jan 12, 2025", status: "active", jobs: 4 },
+  { id: 2, name: "Priya Thapa", email: "priya@email.com", avatar: "PT", joined: "Feb 3, 2025", status: "active", jobs: 2 },
+  { id: 3, name: "Bikas Rai", email: "bikas@email.com", avatar: "BR", joined: "Mar 15, 2025", status: "inactive", jobs: 7 },
+  { id: 4, name: "Sita Gurung", email: "sita@email.com", avatar: "SG", joined: "Mar 20, 2025", status: "active", jobs: 1 },
 ];
 
 export default function AdminUsers() {
@@ -19,123 +15,104 @@ export default function AdminUsers() {
   const [users, setUsers] = useState(initialUsers);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
-  const [removeConfirm, setRemoveConfirm] = useState(null);
+  const [removeId, setRemoveId] = useState(null);
 
   const filtered = users.filter((u) => {
-    const matchSearch =
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase());
     const matchFilter = filter === "all" || u.status === filter;
     return matchSearch && matchFilter;
   });
 
   const handleRemove = (id) => {
     setUsers((prev) => prev.filter((u) => u.id !== id));
-    setRemoveConfirm(null);
+    setRemoveId(null);
   };
 
   return (
-    <div className="admin-layout">
-      <AdminNavbar
-        backTo="/admin"
-        pageIcon="👥"
-        pageTitle="Manage Users"
-        rightSlot={
-          <span className="admin-count-chip">{users.length} Users</span>
-        }
-      />
+    <div className="admin-layout animate-fade">
+      <AdminNavbar backTo="/admin" pageIcon="👥" pageTitle="Community Users" />
 
-      <main className="admin-main">
-        <div className="admin-page-header">
-          <h1 className="admin-page-title">All Users</h1>
-          <p className="admin-page-subtitle">View and manage all registered users on the platform.</p>
-        </div>
+      <main className="sm-container sm-section">
+        <header className="page-header" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem'}}>
+          <div>
+            <h1 style={{fontSize: '2rem', fontWeight: 800, color: 'var(--sm-navy)', margin: 0}}>User Management</h1>
+            <p style={{color: 'var(--sm-text-mid)', marginTop: '0.4rem'}}>Review client activity and manage accounts.</p>
+          </div>
+          <div className="sm-badge sm-badge-info">{users.length} Total Users</div>
+        </header>
 
-        <div className="admin-controls">
-          <div className="admin-search-wrap">
-            <span className="admin-search-icon">🔍</span>
-            <input
-              className="admin-search"
-              placeholder="Search by name or email..."
+        <div style={{display: 'flex', gap: '1rem', marginBottom: '2.5rem', flexWrap: 'wrap'}}>
+            <input 
+              className="sm-input" 
+              style={{flex: 1, minWidth: '300px'}} 
+              placeholder="Search by name or email..." 
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={e => setSearch(e.target.value)}
             />
-          </div>
-          <div className="admin-filter-group">
-            {["all", "active", "inactive"].map((f) => (
-              <button
-                key={f}
-                className={`admin-filter-btn ${filter === f ? "active" : ""}`}
-                onClick={() => setFilter(f)}
-              >
-                {f.charAt(0).toUpperCase() + f.slice(1)}
-              </button>
-            ))}
-          </div>
+            <div style={{display: 'flex', gap: '0.5rem'}}>
+              {['All', 'Active', 'Inactive'].map(f => (
+                <button 
+                  key={f} 
+                  className={`sm-btn ${filter.toLowerCase() === f.toLowerCase() ? 'sm-btn-secondary' : 'sm-btn-outline'}`}
+                  style={{padding: '0.5rem 1.25rem', fontSize: '0.85rem'}}
+                  onClick={() => setFilter(f.toLowerCase())}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
         </div>
 
-        <div className="admin-table-card">
-          <table className="admin-table">
+        <div className="sm-table-card">
+          <table style={{width: '100%', borderCollapse: 'collapse'}}>
             <thead>
-              <tr>
-                <th>User</th>
-                <th>Contact</th>
-                <th>Joined</th>
-                <th>Services Booked</th>
-                <th>Status</th>
-                <th>Action</th>
+              <tr style={{textAlign: 'left', borderBottom: '2px solid var(--sm-gray-border)'}}>
+                <th style={{padding: '1.25rem', fontSize: '0.85rem', color: 'var(--sm-text-light)', textTransform: 'uppercase'}}>User</th>
+                <th style={{padding: '1.25rem', fontSize: '0.85rem', color: 'var(--sm-text-light)', textTransform: 'uppercase'}}>Joined</th>
+                <th style={{padding: '1.25rem', fontSize: '0.85rem', color: 'var(--sm-text-light)', textTransform: 'uppercase'}}>Projects</th>
+                <th style={{padding: '1.25rem', fontSize: '0.85rem', color: 'var(--sm-text-light)', textTransform: 'uppercase'}}>Status</th>
+                <th style={{padding: '1.25rem', fontSize: '0.85rem', color: 'var(--sm-text-light)', textTransform: 'uppercase', textAlign: 'right'}}>Action</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="admin-empty">No users found.</td>
-                </tr>
-              ) : (
-                filtered.map((user) => (
-                  <tr key={user.id} className="admin-table-row">
-                    <td>
-                      <div className="admin-user-cell">
-                        <div className="admin-avatar-sm" style={{ background: "linear-gradient(135deg,#667eea,#764ba2)" }}>
-                          {user.avatar}
-                        </div>
-                        <div>
-                          <div className="admin-user-name">{user.name}</div>
-                          <div className="admin-user-email">{user.email}</div>
-                        </div>
+              {filtered.map(user => (
+                <tr key={user.id} className="admin-table-row" style={{borderBottom: '1px solid var(--sm-gray-border)'}}>
+                  <td style={{padding: '1.25rem'}}>
+                    <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
+                      <div style={{width: '40px', height: '40px', background: 'var(--sm-navy)', color: '#fff', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.9rem'}}>{user.avatar}</div>
+                      <div>
+                        <div style={{fontWeight: 700, fontSize: '0.95rem'}}>{user.name}</div>
+                        <div style={{fontSize: '0.8rem', color: 'var(--sm-text-light)'}}>{user.email}</div>
                       </div>
-                    </td>
-                    <td className="admin-td-muted">{user.phone}</td>
-                    <td className="admin-td-muted">{user.joined}</td>
-                    <td>
-                      <span className="admin-services-badge">{user.services}</span>
-                    </td>
-                    <td>
-                      <span className={`admin-status-badge ${user.status}`}>{user.status}</span>
-                    </td>
-                    <td>
-                      <button className="admin-remove-btn" onClick={() => setRemoveConfirm(user.id)}>
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
+                    </div>
+                  </td>
+                  <td style={{padding: '1.25rem', fontSize: '0.9rem', color: 'var(--sm-text-mid)'}}>{user.joined}</td>
+                  <td style={{padding: '1.25rem'}}>
+                    <span style={{fontWeight: 700, color: 'var(--sm-navy)'}}>{user.jobs}</span>
+                  </td>
+                  <td style={{padding: '1.25rem'}}>
+                    <span className={`sm-badge ${user.status === 'active' ? 'sm-badge-success' : 'sm-badge-danger'}`}>{user.status}</span>
+                  </td>
+                  <td style={{padding: '1.25rem', textAlign: 'right'}}>
+                    <button className="sm-btn sm-btn-ghost" style={{color: 'var(--sm-danger)', padding: '0.4rem 0.8rem', fontSize: '0.75rem'}} onClick={() => setRemoveId(user.id)}>Remove</button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </main>
 
-      {removeConfirm && (
-        <div className="admin-modal-overlay" onClick={() => setRemoveConfirm(null)}>
-          <div className="admin-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-icon">⚠️</div>
-            <h3>Remove User?</h3>
-            <p>This action cannot be undone. The user will lose access to the platform.</p>
-            <div className="admin-modal-actions">
-              <button className="admin-modal-cancel" onClick={() => setRemoveConfirm(null)}>Cancel</button>
-              <button className="admin-modal-confirm" onClick={() => handleRemove(removeConfirm)}>Remove</button>
-            </div>
+      {removeId && (
+        <div className="sm-overlay animate-fade" onClick={() => setRemoveId(null)} style={{position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000}}>
+          <div className="sm-card" style={{maxWidth: '380px', textAlign: 'center'}}>
+             <div style={{fontSize: '2.5rem', marginBottom: '1rem'}}>⚠️</div>
+             <h3 style={{fontWeight: 800, color: 'var(--sm-navy)'}}>Suspend Account?</h3>
+             <p style={{color: 'var(--sm-text-mid)', fontSize: '0.9rem', marginBottom: '1.5rem'}}>This user will lose access to all ServiceMitra portals. This action is reversible by the support team.</p>
+             <div style={{display: 'flex', gap: '0.75rem'}}>
+                <button className="sm-btn sm-btn-ghost" style={{flex: 1}} onClick={() => setRemoveId(null)}>Cancel</button>
+                <button className="sm-btn sm-btn-danger" style={{flex: 1}} onClick={() => handleRemove(removeId)}>Suspend Account</button>
+             </div>
           </div>
         </div>
       )}

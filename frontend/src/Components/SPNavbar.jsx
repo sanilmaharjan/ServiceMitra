@@ -42,12 +42,14 @@ export default function SPNavbar({ providerName = "Provider", backTo = "" }) {
             {greeting.text}, {firstName}!
           </span>
         </div>
-        <button
-          className="sp-logout-btn"
-          onClick={() => navigate("/login")}
-        >
-          Logout
-        </button>
+        <div className="sp-nav-actions" style={{display: 'flex', gap: '0.75rem'}}>
+          <button className="sm-nav-profile" onClick={() => navigate("/provider/profile")}>
+            <span>👤</span> Profile
+          </button>
+          <button className="sp-logout-btn" onClick={() => navigate("/login")}>
+            Logout
+          </button>
+        </div>
       </div>
     </nav>
   );

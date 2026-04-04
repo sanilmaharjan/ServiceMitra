@@ -49,6 +49,7 @@ export default function AdminKYC() {
   const [selected, setSelected] = useState(null);
   const [noteInput, setNoteInput] = useState("");
   const [filter, setFilter] = useState("all");
+  const [viewingDoc, setViewingDoc] = useState(null); // { type: string, label: string }
 
   const filtered = kyc.filter((k) => filter === "all" || k.status === filter);
 
@@ -155,8 +156,8 @@ export default function AdminKYC() {
                         <span className={`admin-status-badge ${item.status}`}>{item.status}</span>
                       </td>
                       <td>
-                        <button className="provider-btn-portfolio" onClick={() => openDetail(item)}>
-                          Review
+                        <button className="sm-btn sm-btn-outline" style={{padding: '0.4rem 1rem', fontSize: '0.75rem'}} onClick={() => openDetail(item)}>
+                          Review Details
                         </button>
                       </td>
                     </tr>
@@ -189,9 +190,17 @@ export default function AdminKYC() {
               <h4 className="kyc-docs-title">Document Checklist</h4>
               <div className="kyc-docs-grid">
                 {Object.entries(selected.docs).map(([key, val]) => (
-                  <div key={key} className={`kyc-doc-card ${val ? "doc-card-ok" : "doc-card-missing"}`}>
-                    <span className="kyc-doc-card-icon">{val ? "✅" : "❌"}</span>
-                    <span className="kyc-doc-card-label">{docLabels[key]}</span>
+                  <div 
+                    key={key} 
+                    className={`kyc-doc-card ${val ? "doc-card-ok" : "doc-card-missing"}`}
+                    onClick={() => val && setViewingDoc({ type: key, label: docLabels[key] })}
+                    style={{ cursor: val ? 'pointer' : 'default' }}
+                  >
+                    <div className="kyc-doc-card-header">
+                      <span className="kyc-doc-card-icon">{val ? "📄" : "❌"}</span>
+                      <span className="kyc-doc-card-label">{docLabels[key]}</span>
+                    </div>
+                    {val && <span className="kyc-doc-view-hint">Click to View Document</span>}
                     <span className="kyc-doc-card-status">{val ? "Submitted" : "Missing"}</span>
                   </div>
                 ))}
@@ -208,8 +217,52 @@ export default function AdminKYC() {
               />
             </div>
             <div className="kyc-modal-actions">
-              <button className="kyc-reject-btn" onClick={() => handleAction(selected.id, "rejected")}>✕ Reject</button>
-              <button className="kyc-approve-btn" onClick={() => handleAction(selected.id, "approved")}>✓ Approve</button>
+              <button className="sm-btn sm-btn-outline" style={{flex: 1}} onClick={() => handleAction(selected.id, "rejected")}>✕ Reject</button>
+              <button className="sm-btn sm-btn-primary" style={{flex: 1}} onClick={() => handleAction(selected.id, "approved")}>✓ Approve KYC</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- Document Preview Portal --- */}
+      {viewingDoc && (
+        <div className="sm-overlay animate-fade" onClick={() => setViewingDoc(null)} style={{zIndex: 2000, background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(8px)'}}>
+          <div className="sm-modal sm-card" onClick={e => e.stopPropagation()} style={{maxWidth: '800px', width: '90%', padding: '0', overflow: 'hidden'}}>
+            <div style={{padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--sm-gray-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+              <h3 style={{margin: 0, fontSize: '1.1rem', color: 'var(--sm-navy)'}}>{viewingDoc.label}</h3>
+              <button className="sm-btn-ghost" onClick={() => setViewingDoc(null)} style={{padding: '0.5rem'}}>✕</button>
+            </div>
+            <div style={{padding: '2rem', background: '#f8fafc', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px'}}>
+              {/* Mock visualization of a government document */}
+              <div style={{
+                width: '100%', 
+                maxWidth: '600px', 
+                aspectRatio: '1.6 / 1', 
+                background: '#fff', 
+                borderRadius: '12px', 
+                boxShadow: '0 20px 50px rgba(0,0,0,0.15)',
+                padding: '2rem',
+                border: '1px solid #e2e8f0',
+                position: 'relative',
+                overflow: 'hidden'
+              }}>
+                <div style={{display: 'flex', gap: '1.5rem'}}>
+                  <div style={{width: '120px', height: '140px', background: '#f1f5f9', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem'}}>👤</div>
+                  <div style={{flex: 1}}>
+                    <div style={{height: '14px', width: '70%', background: 'var(--sm-navy)', opacity: 0.8, borderRadius: '4px', marginBottom: '1rem'}}></div>
+                    <div style={{height: '10px', width: '90%', background: '#cbd5e1', borderRadius: '4px', marginBottom: '0.6rem'}}></div>
+                    <div style={{height: '10px', width: '85%', background: '#cbd5e1', borderRadius: '4px', marginBottom: '0.6rem'}}></div>
+                    <div style={{height: '10px', width: '40%', background: '#cbd5e1', borderRadius: '4px', marginBottom: '1.5rem'}}></div>
+                    <div style={{height: '24px', width: '60%', background: '#f1f5f9', borderRadius: '6px', border: '1px solid #e2e8f0'}}></div>
+                  </div>
+                </div>
+                <div style={{marginTop: '2rem', height: '60px', width: '100%', background: 'repeating-linear-gradient(45deg, #f8fafc 0, #f8fafc 10px, #fff 10px, #fff 20px)', border: '1px solid #f1f5f9', borderRadius: '8px'}}></div>
+                <div style={{position: 'absolute', top: '1.5rem', right: '1.5rem', opacity: 0.1, fontSize: '5rem'}}>🇳🇵</div>
+                <div style={{position: 'absolute', bottom: '1.5rem', right: '1.5rem', fontSize: '0.7rem', color: '#94a3b8', fontWeight: 600}}>GOVERNMENT OF NEPAL · {viewingDoc.type.toUpperCase()}</div>
+              </div>
+            </div>
+            <div style={{padding: '1.25rem 1.5rem', borderTop: '1px solid var(--sm-gray-border)', background: '#fff', textAlign: 'right'}}>
+              <button className="sm-btn sm-btn-primary" onClick={() => setViewingDoc(null)}>Done Reviewing</button>
             </div>
           </div>
         </div>
