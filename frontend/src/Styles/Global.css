@@ -243,3 +243,42 @@ body {
 .animate-fade {
   animation: fadeIn 0.4s ease forwards;
 }
+
+/* --- Project History Specifics --- */
+.sm-history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.sm-history-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--sm-white);
+  border-radius: var(--sm-radius-lg);
+  border: 1px solid var(--sm-gray-border);
+  box-shadow: var(--sm-shadow-sm);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.sm-history-card:hover {
+  box-shadow: var(--sm-shadow-md);
+  transform: translateY(-4px);
+}
+
+.sm-history-card-body {
+  padding: 1.75rem;
+  flex: 1;
+}
+
+.sm-history-card-footer {
+  padding: 1.25rem 1.75rem;
+  background: #fafafa;
+  border-top: 1px solid var(--sm-gray-border);
+  display: flex;
+  justify-content: flex-end;
+}

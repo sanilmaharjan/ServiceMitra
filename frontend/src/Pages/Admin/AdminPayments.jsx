@@ -68,7 +68,7 @@ export default function AdminPayments() {
   if (!selectedProvider && !id) {
     return (
       <div className="admin-layout animate-fade">
-        <AdminNavbar pageIcon="💳" pageTitle="Pending Payments" />
+        <AdminNavbar backTo="/admin" pageIcon="💳" pageTitle="Pending Payments" />
         <main className="admin-main">
           <div className="admin-page-header">
             <div>

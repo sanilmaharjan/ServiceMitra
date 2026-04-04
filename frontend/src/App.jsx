@@ -21,6 +21,7 @@ import UserPostDetail from "./Pages/User/UserPostDetail";
 import UserProfile from "./Pages/User/UserProfile";
 import UserHistory from "./Pages/User/UserHistory";
 import SPProfile from "./Pages/ServiceProvider/SPProfile";
+import SPKYC from "./Pages/ServiceProvider/SPKYC";
 import "./Styles/Global.css";
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
         <Route path="/provider/bids" element={<SPBids />} />
         <Route path="/provider/portfolio" element={<SPPortfolio />} />
         <Route path="/provider/profile" element={<SPProfile />} />
+        <Route path="/provider/kyc" element={<SPKYC />} />
       </Routes>
     );
   }
