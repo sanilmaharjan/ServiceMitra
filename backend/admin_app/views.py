@@ -7,6 +7,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from users.models import CustomUser, ProviderProfile
+from notification.models import Notification  # Add this import
 
 
 @api_view(['GET'])
@@ -26,7 +27,6 @@ def pending_verifications(request):
             'id': profile.id,
             'provider_id': profile.custom_user.id,
             'name': profile.custom_user.name,
-            # 'business_name': profile.business_name,
             'phone': profile.custom_user.phone,
             'citizenship_number': profile.citizenship_number,
             'citizenship_image': profile.citizenship_image.url if profile.citizenship_image else None,
@@ -60,6 +60,15 @@ def approve_verification(request, provider_id):
     profile.verification_notes = request.data.get('notes', '')
     profile.save()
     
+    # Create notification for provider
+    Notification.objects.create(
+        user=provider,
+        notification_type='verification_approved',
+        title='Account Verified!',
+        message=f'Your account has been verified by admin. You can now start bidding on jobs.',
+        job=None
+    )
+    
     return Response({
         'message': f'Provider {provider.name} verified successfully',
         'provider_id': provider.id,
@@ -82,6 +91,15 @@ def reject_verification(request, provider_id):
     reason = request.data.get('reason', 'No reason provided')
     profile.verification_notes = reason
     profile.save()
+    
+    # Create notification for provider
+    Notification.objects.create(
+        user=provider,
+        notification_type='verification_rejected',
+        title='Verification Rejected',
+        message=f'Your verification request was rejected. Reason: {reason}',
+        job=None
+    )
     
     return Response({
         'message': f'Provider {provider.name} verification rejected',
@@ -117,10 +135,6 @@ def submit_kyc(request):
         return Response({'error': 'Only providers can submit KYC'}, status=403)
     
     profile = get_object_or_404(ProviderProfile, custom_user=user)
-    
-    # Update KYC fields
-    # if 'business_name' in request.data:
-    #     profile.business_name = request.data['business_name']
     
     if 'citizenship_number' in request.data:
         profile.citizenship_number = request.data['citizenship_number']

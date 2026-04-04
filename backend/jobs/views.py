@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from rest_framework.decorators import permission_classes, api_view
 from rest_framework.permissions import IsAuthenticated
-from .models import Job,Bid
-from .serializers import JobSerializer,BidSerializer
+from .models import Job, Bid
+from .serializers import JobSerializer, BidSerializer
 from rest_framework.response import Response
 from django.utils import timezone
 from datetime import timedelta
 from django.shortcuts import get_object_or_404
-
+from notification.models import Notification
 
 
 @api_view(['GET', 'POST'])
@@ -62,6 +62,7 @@ def job_list(request):
             return Response(JobSerializer(job).data, status=201)
         return Response(serializer.errors, status=400)
     
+
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def job_detail(request, job_id):
@@ -100,6 +101,7 @@ def job_detail(request, job_id):
             job.delete()
             return Response({'message': 'Job deleted'}, status=204)
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_bid(request, job_id):
@@ -136,8 +138,19 @@ def create_bid(request, job_id):
         estimated_days=estimated_days
     )
     
+    # Create notification for client
+    Notification.objects.create(
+        user=job.client,
+        notification_type='bid_received',
+        title='New Bid Received',
+        message=f'{user.name} has placed a bid of ₹{amount} on your job "{job.title}"',
+        job=job
+    )
+    
     serializer = BidSerializer(bid)
     return Response(serializer.data, status=201)
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def job_bids(request, job_id):
@@ -152,7 +165,6 @@ def job_bids(request, job_id):
     bids = job.bids.all()
     serializer = BidSerializer(bids, many=True)
     return Response(serializer.data)
-
 
 
 @api_view(['POST'])
@@ -171,13 +183,44 @@ def accept_bid(request, bid_id):
     bid.status = 'accepted'
     bid.save()
     
-    Bid.objects.filter(job=job).exclude(id=bid.id).update(status='rejected')
+    # Notify the provider that their bid was accepted
+    Notification.objects.create(
+        user=bid.provider,
+        notification_type='bid_accepted',
+        title='Bid Accepted!',
+        message=f'Your bid of ₹{bid.amount} for "{job.title}" has been accepted!',
+        job=job
+    )
+    
+    # Notify other bidders that their bids were rejected
+    rejected_bids = Bid.objects.filter(job=job).exclude(id=bid.id)
+    for rejected_bid in rejected_bids:
+        rejected_bid.status = 'rejected'
+        rejected_bid.save()
+        
+        Notification.objects.create(
+            user=rejected_bid.provider,
+            notification_type='bid_rejected',
+            title='Bid Not Selected',
+            message=f'Your bid for "{job.title}" was not selected. Another provider was chosen.',
+            job=job
+        )
     
     job.status = 'assigned'
     job.provider = bid.provider
     job.save()
     
+    # Create job assigned notification for the provider
+    Notification.objects.create(
+        user=bid.provider,
+        notification_type='job_assigned',
+        title='Job Assigned to You',
+        message=f'You have been assigned to work on "{job.title}". Please review the job details.',
+        job=job
+    )
+    
     return Response({'message': 'Bid accepted successfully'})
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -195,7 +238,17 @@ def reject_bid(request, bid_id):
     bid.status = 'rejected'
     bid.save()
     
+    # Notify the provider that their bid was rejected
+    Notification.objects.create(
+        user=bid.provider,
+        notification_type='bid_rejected',
+        title='Bid Rejected',
+        message=f'Your bid for "{job.title}" has been rejected by the client.',
+        job=job
+    )
+    
     return Response({'message': 'Bid rejected'})
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -213,7 +266,17 @@ def start_job(request, job_id):
     job.started_at = timezone.now()
     job.save()
     
+    # Notify the client that job has started
+    Notification.objects.create(
+        user=job.client,
+        notification_type='job_started',
+        title='Job Started',
+        message=f'{user.name} has started working on your job "{job.title}".',
+        job=job
+    )
+    
     return Response({'message': 'Job started'})
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -231,7 +294,17 @@ def complete_job(request, job_id):
     job.completed_at = timezone.now()
     job.save()
     
+    # Notify the client that job is completed
+    Notification.objects.create(
+        user=job.client,
+        notification_type='job_completed',
+        title='Job Completed',
+        message=f'{user.name} has marked "{job.title}" as completed. Please review and release payment.',
+        job=job
+    )
+    
     return Response({'message': 'Job completed'})
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -248,5 +321,24 @@ def cancel_job(request, job_id):
     
     job.status = 'cancelled'
     job.save()
+    
+    # Notify the other party about cancellation
+    if user.role == 'client':
+        if job.provider:
+            Notification.objects.create(
+                user=job.provider,
+                notification_type='job_cancelled',
+                title='Job Cancelled',
+                message=f'The client has cancelled the job "{job.title}".',
+                job=job
+            )
+    else:  # provider cancelled
+        Notification.objects.create(
+            user=job.client,
+            notification_type='job_cancelled',
+            title='Job Cancelled',
+            message=f'The provider has cancelled the job "{job.title}".',
+            job=job
+        )
     
     return Response({'message': 'Job cancelled'})
