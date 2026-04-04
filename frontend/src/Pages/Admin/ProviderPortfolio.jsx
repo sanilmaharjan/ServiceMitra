@@ -133,3 +133,31 @@ export default function ProviderPortfolio() {
     </div>
   );
 }
+
+
+return(
+
+<div className="admin-layout">
+
+<AdminNavbar
+backTo="/admin/service-providers"
+pageTitle={`Portfolio — ${provider.name}`}
+/>
+
+<main className="sm-container sm-section">
+
+<h1>{provider.name}</h1>
+
+<p>Email: {provider.email}</p>
+
+<p>Phone: {provider.phone}</p>
+
+<p>Category: {provider.category?.join(", ")}</p>
+
+</main>
+
+</div>
+
+)
+
+}

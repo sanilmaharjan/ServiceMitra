@@ -5,12 +5,13 @@ import { AuthContext } from "../context/authContext";
 import api from "../utils/api";
 import categoriesApi from "../utils/categoriesApi";
 
+// Service categories with IDs
 const serviceCategories = [
-  "Cleaning",
-  "Plumbing",
-  "Electrical Appliance Repairing",
-  "Servicing",
-  "Painting",
+  { id: 1, name: "Cleaning" },
+  { id: 2, name: "Plumbing" },
+  { id: 3, name: "Electrical Appliance Repairing" },
+  { id: 4, name: "Servicing" },
+  { id: 5, name: "Painting" },
 ];
 
 const Auth = () => {
@@ -30,9 +31,16 @@ const Auth = () => {
     }
   }, [user, token]);
 
-  const toggleCategory = (cat) => {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  // toggle categories by ID only
+  const toggleCategory = (catId) => {
     setCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+      prev.includes(catId) ? prev.filter((c) => c !== catId) : [...prev, catId]
     );
   };
 
@@ -111,6 +119,7 @@ const Auth = () => {
     <div className="auth-container">
       <div className={`auth-card ${isLogin ? "login-mode" : "register-mode"}`}>
 
+        {/* LOGIN PANEL */}
         <div className="auth-form-panel login-panel">
           <h2>Sign In</h2>
           <p>Welcome back! Please sign in.</p>
@@ -124,26 +133,15 @@ const Auth = () => {
           </form>
         </div>
 
+        {/* REGISTER PANEL */}
         <div className="auth-form-panel register-panel">
           <h2>Create Account</h2>
           <p>Create your ServiceMitra account</p>
           <form onSubmit={handleSignUpHandle}>
             {/* Role toggle */}
             <div className="role-toggle">
-              <button
-                type="button"
-                className={`role-btn ${role === "client" ? "role-active" : ""}`}
-                onClick={() => { setRole("client"); setCategories([]); }}
-              >
-                Client
-              </button>
-              <button
-                type="button"
-                className={`role-btn ${role === "provider" ? "role-active" : ""}`}
-                onClick={() => setRole("provider")}
-              >
-                Service Provider
-              </button>
+              <button type="button" className={`role-btn ${role === "client" ? "role-active" : ""}`} onClick={() => { setRole("client"); setCategories([]); }}>Client</button>
+              <button type="button" className={`role-btn ${role === "provider" ? "role-active" : ""}`} onClick={() => setRole("provider")}>Service Provider</button>
             </div>
 
             <input name="fullName" type="text" placeholder="Full Name" className="auth-input" required />
@@ -152,7 +150,7 @@ const Auth = () => {
             <input name="password" type="password" placeholder="Password" className="auth-input" required />
             <input name="confirmPassword" type="password" placeholder="Confirm Password" className="auth-input" required />
 
-            {/* Services — only for service providers */}
+            {/* SERVICE CATEGORIES */}
             {role === "provider" && (
               <div className="service-checkbox-group">
                 <p className="service-checkbox-label">Select Services Offered</p>
@@ -167,7 +165,7 @@ const Auth = () => {
                         onChange={() => toggleCategory(cat)}
                       />
                       <span className="checkbox-icon"></span>
-                      {cat}
+                      {cat.name}
                     </label>
                   ))}
                 </div>
@@ -178,23 +176,20 @@ const Auth = () => {
           </form>
         </div>
 
+        {/* OVERLAY PANEL */}
         <div className="auth-overlay-wrapper">
           <div className="auth-overlay-panel">
             {isLogin ? (
               <div className="overlay-content">
-                <h2>Hello, Friend 👋</h2>
+                <h2>Hello, Friend</h2>
                 <p>New here? Create an account and start hiring local professionals.</p>
-                <button className="btn-ghost" onClick={() => setIsLogin(false)}>
-                  SIGN UP
-                </button>
+                <button className="btn-ghost" onClick={() => setIsLogin(false)}>SIGN UP</button>
               </div>
             ) : (
               <div className="overlay-content">
-                <h2>Welcome Back 👋</h2>
+                <h2>Welcome Back</h2>
                 <p>Already registered? Sign in to continue your work.</p>
-                <button className="btn-ghost" onClick={() => setIsLogin(true)}>
-                  SIGN IN
-                </button>
+                <button className="btn-ghost" onClick={() => setIsLogin(true)}>SIGN IN</button>
               </div>
             )}
           </div>

@@ -9,6 +9,7 @@ from .models import Review
 from .serializers import ReviewSerializer
 from jobs.models import Job
 from django.utils import timezone
+from notification.models import Notification
 
 
 @api_view(['POST'])
@@ -40,8 +41,18 @@ def create_review(request, job_id):
         comment=comment
     )
     
+    # Create notification for provider
+    Notification.objects.create(
+        user=job.provider,
+        notification_type='review_received',
+        title='New Review Received',
+        message=f'{user.name} left a {rating}-star review for "{job.title}": {comment[:100]}',
+        job=job
+    )
+    
     serializer = ReviewSerializer(review)
     return Response(serializer.data, status=201)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -61,8 +72,18 @@ def respond_to_review(request, review_id):
     review.responded_at = timezone.now()
     review.save()
     
+    # Notify the client that provider responded to review
+    Notification.objects.create(
+        user=review.client,
+        notification_type='review_received',  # You might want to add a 'review_response' type
+        title='Response to Your Review',
+        message=f'{user.name} responded to your review on "{review.job.title}"',
+        job=review.job
+    )
+    
     serializer = ReviewSerializer(review)
     return Response(serializer.data, status=200)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
