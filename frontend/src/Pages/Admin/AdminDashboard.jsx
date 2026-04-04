@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
 
 const mockStats = {
@@ -9,16 +10,8 @@ const mockStats = {
   pendingPayments: 8,
 };
 
-function getGreeting() {
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return { text: "Good Morning", emoji: "☀️" };
-  if (hour >= 12 && hour < 17) return { text: "Good Afternoon", emoji: "🌤️" };
-  return { text: "Good Evening", emoji: "🌙" };
-}
-
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const greeting = getGreeting();
   const [animatedStats, setAnimatedStats] = useState({
     users: 0,
     serviceProviders: 0,
@@ -89,25 +82,9 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin-layout">
-      {/* Navbar */}
-      <nav className="admin-navbar">
-        <div className="admin-navbar-brand">
-          <span className="admin-brand-text">Service<span>Mitra</span> Admin</span>
-        </div>
-        <div className="admin-navbar-right">
-          <div className="admin-greeting">
-            <span className="greeting-emoji">{greeting.emoji}</span>
-            <span className="greeting-text">{greeting.text}, Admin!</span>
-          </div>
-          <button className="admin-logout-btn" onClick={() => navigate("/login")}>
-            Logout
-          </button>
-        </div>
-      </nav>
+      <AdminNavbar />
 
-      {/* Main Content */}
       <main className="admin-main">
-        {/* Page Header */}
         <div className="admin-page-header">
           <div>
             <h1 className="admin-page-title">Dashboard Overview</h1>
@@ -122,7 +99,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Stats Cards */}
         <div className="admin-cards-grid">
           {cards.map((card, index) => (
             <div
@@ -133,7 +109,7 @@ export default function AdminDashboard() {
             >
               <div className="admin-card-header">
                 <div className="admin-card-icon">{card.icon}</div>
-                {card.urgent && <span className="admin-card-dot"></span>}
+                {card.urgent && <span className="admin-card-dot" />}
               </div>
               <div className="admin-card-value">{card.value}</div>
               <div className="admin-card-title">{card.title}</div>

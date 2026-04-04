@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
 
 export default function AdminPayments() {
@@ -28,10 +29,7 @@ export default function AdminPayments() {
     if (Object.keys(e2).length) { setErrors(e2); return; }
     setErrors({});
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-    }, 1800);
+    setTimeout(() => { setLoading(false); setSuccess(true); }, 1800);
   };
 
   const paymentMethods = [
@@ -49,26 +47,21 @@ export default function AdminPayments() {
 
   return (
     <div className="admin-layout">
-      <nav className="admin-navbar">
-        <div className="admin-navbar-brand">
-          <button className="admin-back-btn" onClick={() => navigate(-1)}>← Back</button>
-          <span className="admin-logo-icon">💳</span>
-          <span className="admin-brand-text">
-            {provider ? `Pay — ${provider.name}` : "Process Payment"}
-          </span>
-        </div>
-      </nav>
+      <AdminNavbar
+        backTo={-1}
+        pageIcon="💳"
+        pageTitle={provider ? `Pay — ${provider.name}` : "Process Payment"}
+      />
 
       <main className="admin-main">
         <div className="payment-layout">
-          {/* Left: Payment Form */}
           <div className="payment-left">
             {success ? (
               <div className="payment-success-card">
                 <div className="payment-success-icon">🎉</div>
                 <h2>Payment Successful!</h2>
                 <p>
-                  <strong>NPR {Number(amount).toLocaleString()}</strong> has been sent to{" "}
+                  <strong>NRS {Number(amount).toLocaleString()}</strong> has been sent to{" "}
                   <strong>{provider?.name || "the provider"}</strong> via{" "}
                   {paymentMethods.find((m) => m.value === method)?.label}.
                 </p>
@@ -99,9 +92,9 @@ export default function AdminPayments() {
 
                 <form onSubmit={handlePay} className="payment-form">
                   <div className="payment-field">
-                    <label className="payment-label">Amount (NPR)</label>
+                    <label className="payment-label">Amount (NRS)</label>
                     <div className="payment-input-wrap">
-                      <span className="payment-input-prefix">NPR</span>
+                      <span className="payment-input-prefix">NRS</span>
                       <input
                         className={`payment-input ${errors.amount ? "input-error" : ""}`}
                         type="number"
@@ -143,25 +136,20 @@ export default function AdminPayments() {
                   </div>
 
                   <button className={`payment-submit-btn ${loading ? "loading" : ""}`} type="submit" disabled={loading}>
-                    {loading ? (
-                      <span className="payment-spinner">Processing...</span>
-                    ) : (
-                      `Send Payment →`
-                    )}
+                    {loading ? <span className="payment-spinner">Processing...</span> : "Send Payment →"}
                   </button>
                 </form>
               </div>
             )}
           </div>
 
-          {/* Right: Payment History */}
           <div className="payment-right">
             <div className="payment-history-card">
               <h3 className="payment-history-title">📜 Payment History</h3>
               {provider && (
                 <div className="payment-total-earnings">
                   <div className="payment-total-label">Total Earnings</div>
-                  <div className="payment-total-value">NPR {provider.earnings?.toLocaleString()}</div>
+                  <div className="payment-total-value">NRS {provider.earnings?.toLocaleString()}</div>
                 </div>
               )}
               <div className="payment-history-list">
@@ -172,7 +160,7 @@ export default function AdminPayments() {
                       <div className="payment-history-method">{p.method}</div>
                     </div>
                     <div className="payment-history-right">
-                      <div className="payment-history-amount">NPR {p.amount.toLocaleString()}</div>
+                      <div className="payment-history-amount">NRS {p.amount.toLocaleString()}</div>
                       <span className="admin-status-badge verified">{p.status}</span>
                     </div>
                   </div>
@@ -180,7 +168,6 @@ export default function AdminPayments() {
               </div>
             </div>
 
-            {/* Summary Card */}
             <div className="payment-summary-card">
               <h3 className="payment-history-title">📊 This Month</h3>
               <div className="payment-summary-grid">
@@ -189,7 +176,7 @@ export default function AdminPayments() {
                   <div className="payment-summary-label">Payments</div>
                 </div>
                 <div className="payment-summary-item">
-                  <div className="payment-summary-value">NPR 30.3K</div>
+                  <div className="payment-summary-value">NRS 30.3K</div>
                   <div className="payment-summary-label">Total Paid</div>
                 </div>
               </div>
