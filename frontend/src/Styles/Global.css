@@ -84,40 +84,71 @@ body {
 .sm-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.65rem 1.5rem;
-  border-radius: 12px;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1.6rem;
+  border-radius: 14px;
   font-family: inherit;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   cursor: pointer;
   border: none;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.sm-btn:active {
+  transform: scale(0.97);
 }
 
 .sm-btn-primary {
-  background: var(--sm-orange);
+  background: linear-gradient(135deg, var(--sm-orange), var(--sm-orange-dark));
   color: #fff;
-  box-shadow: 0 4px 12px rgba(244, 107, 53, 0.35);
+  box-shadow: 0 4px 15px rgba(244, 107, 53, 0.4);
 }
 
 .sm-btn-primary:hover:not(:disabled) {
-  background: var(--sm-orange-dark);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(244, 107, 53, 0.45);
+  box-shadow: 0 8px 25px rgba(244, 107, 53, 0.5);
+  filter: brightness(1.05);
+}
+
+.sm-btn-secondary {
+  background: linear-gradient(135deg, var(--sm-navy), var(--sm-navy-mid));
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(20, 61, 89, 0.3);
+}
+
+.sm-btn-secondary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(20, 61, 89, 0.4);
+}
+
+.sm-btn-danger {
+  background: linear-gradient(135deg, #ff4d4d, #e60000);
+  color: #fff;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+}
+
+.sm-btn-danger:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.45);
 }
 
 .sm-btn-outline {
   background: transparent;
-  border: 1.5px solid var(--sm-gray-border);
+  border: 2px solid var(--sm-gray-border);
   color: var(--sm-text-mid);
 }
 
 .sm-btn-outline:hover:not(:disabled) {
   border-color: var(--sm-navy);
   color: var(--sm-navy);
-  background: var(--sm-gray-light);
+  background: var(--sm-navy-light);
+  transform: translateY(-1px);
 }
 
 .sm-btn-ghost {

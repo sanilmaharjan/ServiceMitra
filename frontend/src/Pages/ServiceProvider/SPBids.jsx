@@ -145,7 +145,7 @@ export default function SPBids() {
              <p style={{color: 'var(--sm-text-mid)', fontSize: '0.9rem', marginBottom: '1.5rem'}}>The client will no longer see your offer. This action cannot be undone.</p>
              <div style={{display: 'flex', gap: '0.75rem'}}>
                 <button className="sm-btn sm-btn-ghost" style={{flex: 1}} onClick={() => setWithdrawId(null)}>Keep it</button>
-                <button className="sm-btn sm-btn-primary" style={{flex: 1, background: 'var(--sm-danger)'}} onClick={handleWithdraw}>Yes, Withdraw</button>
+                <button className="sm-btn sm-btn-danger" style={{flex: 1}} onClick={handleWithdraw}>Yes, Withdraw</button>
              </div>
           </div>
         </div>

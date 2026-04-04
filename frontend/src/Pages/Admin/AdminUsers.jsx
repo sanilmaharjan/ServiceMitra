@@ -111,7 +111,7 @@ export default function AdminUsers() {
              <p style={{color: 'var(--sm-text-mid)', fontSize: '0.9rem', marginBottom: '1.5rem'}}>This user will lose access to all ServiceMitra portals. This action is reversible by the support team.</p>
              <div style={{display: 'flex', gap: '0.75rem'}}>
                 <button className="sm-btn sm-btn-ghost" style={{flex: 1}} onClick={() => setRemoveId(null)}>Cancel</button>
-                <button className="sm-btn sm-btn-primary" style={{flex: 1, background: 'var(--sm-danger)'}} onClick={() => handleRemove(removeId)}>Suspend</button>
+                <button className="sm-btn sm-btn-danger" style={{flex: 1}} onClick={() => handleRemove(removeId)}>Suspend Account</button>
              </div>
           </div>
         </div>

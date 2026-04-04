@@ -4,8 +4,8 @@ import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import Index from "./Pages/Index";
 import Auth from "./Pages/Auth";
-import AboutUsDetails from "./Components/AboutUsDetail";
-import ContactPage from "./Components/CantactPage";
+import AboutUs from "./Pages/AboutUs";
+import Contact from "./Pages/Contact";
 import AdminDashboard from "./Pages/Admin/AdminDashboard";
 import AdminUsers from "./Pages/Admin/AdminUsers";
 import AdminServiceProviders from "./Pages/Admin/AdminServiceProviders";
@@ -16,18 +16,11 @@ import SPDashboard from "./Pages/ServiceProvider/SPDashboard";
 import SPPostList from "./Pages/ServiceProvider/SPPostList";
 import SPBids from "./Pages/ServiceProvider/SPBids";
 import SPPortfolio from "./Pages/ServiceProvider/SPPortfolio";
-
-// Placeholder components so routing doesn't break
-const About = () => (
-  <div className="container py-5 text-center">
-    <h2>About Us</h2>
-  </div>
-);
-const Contact = () => (
-  <div className="container py-5 text-center">
-    <h2>Contact</h2>
-  </div>
-);
+import UserDashboard from "./Pages/User/UserDashboard";
+import UserPostDetail from "./Pages/User/UserPostDetail";
+import UserProfile from "./Pages/User/UserProfile";
+import SPProfile from "./Pages/ServiceProvider/SPProfile";
+import "./Styles/Global.css";
 
 function App() {
   const location = useLocation();
@@ -74,11 +67,11 @@ function App() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Navbar />
-      <main className="flex-grow-1 bg-light">
+      <main className="flex-grow-1">
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/about" element={<AboutUsDetails />} />
-          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="/login" element={<Auth />} />
         </Routes>
       </main>
