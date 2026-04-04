@@ -100,6 +100,7 @@ export default function ProviderPortfolio() {
           </div>
 
           <div className="sm-grid" style={{alignContent: 'start'}}>
+            {/* --- Earnings & Payout --- */}
             <section className="sm-card" style={{background: 'var(--sm-navy-light)', border: 'none', marginBottom: '1.5rem'}}>
               <h3 style={{fontSize: '1rem', fontWeight: 700, color: 'var(--sm-navy)', marginBottom: '0.5rem'}}>Accumulated Earnings</h3>
               <div style={{fontSize: '2rem', fontWeight: 900, color: 'var(--sm-navy)', marginBottom: '1rem'}}>NRS {(provider.earnings || 0).toLocaleString()}</div>
@@ -108,6 +109,7 @@ export default function ProviderPortfolio() {
               </button>
             </section>
 
+            {/* --- Skills --- */}
             <section className="sm-card">
               <h3 style={{fontSize: '1rem', fontWeight: 700, color: 'var(--sm-navy)', marginBottom: '1rem'}}>Skills</h3>
               <div style={{display: 'flex', flexWrap: 'wrap', gap: '0.5rem'}}>
@@ -117,6 +119,7 @@ export default function ProviderPortfolio() {
               </div>
             </section>
 
+            {/* --- Contact Info --- */}
             <section className="sm-card" style={{marginTop: '1.5rem'}}>
               <h3 style={{fontSize: '1rem', fontWeight: 700, color: 'var(--sm-navy)', marginBottom: '1rem'}}>Verification & Contact</h3>
               <div style={{fontSize: '0.85rem', color: 'var(--sm-text-mid)'}}>
@@ -132,32 +135,4 @@ export default function ProviderPortfolio() {
       </main>
     </div>
   );
-}
-
-
-return(
-
-<div className="admin-layout">
-
-<AdminNavbar
-backTo="/admin/service-providers"
-pageTitle={`Portfolio — ${provider.name}`}
-/>
-
-<main className="sm-container sm-section">
-
-<h1>{provider.name}</h1>
-
-<p>Email: {provider.email}</p>
-
-<p>Phone: {provider.phone}</p>
-
-<p>Category: {provider.category?.join(", ")}</p>
-
-</main>
-
-</div>
-
-)
-
 }
