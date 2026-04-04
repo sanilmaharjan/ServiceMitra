@@ -23,6 +23,7 @@ import UserHistory from "./Pages/User/UserHistory";
 import SPProfile from "./Pages/ServiceProvider/SPProfile";
 import SPKYC from "./Pages/ServiceProvider/SPKYC";
 import "./Styles/Global.css";
+import { AuthProvider } from "./context/authContext";
 
 function App() {
   const location = useLocation();
@@ -72,12 +73,14 @@ function App() {
     <div className="d-flex flex-column min-vh-100">
       <Navbar />
       <main className="flex-grow-1">
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/login" element={<Auth />} />
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Auth />} />
         </Routes>
+        </AuthProvider>
       </main>
       <Footer />
     </div>

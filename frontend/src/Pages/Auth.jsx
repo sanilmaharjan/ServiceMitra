@@ -1,7 +1,8 @@
 import React, { useContext, useState } from "react";
 import "../styles/Auth.css";
-import { authContext, useUser } from "../context/authContext";
+// import { authContext, useUser } from "../context/authContext";
 import { redirect } from "react-router-dom";
+import { AuthContext } from "../context/authContext";
 
 const serviceCategories = [
   "Cleaning",
@@ -19,8 +20,7 @@ const Auth = () => {
   const [role, setRole] = useState("client");
   const [categories, setCategories] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const userContext = useContext(authContext)
-  const {setUserData} = useContext()
+  const {setUserData}= useContext(AuthContext)
 
   const toggleCategory = (cat) => {
     setCategories((prev) =>
@@ -41,15 +41,14 @@ const Auth = () => {
       const response = await fetch(`${BACKEND_URL}/users/login`, {body : data, method: "POST"} )
       if(!responseData.ok) {
         alert("failed")
+        return
       }
 
       const responseData = await response.json()
       setUserData(responseData.data.user)
-      redirect()
-
+      redirect("/home")
 
       console.log("response Data: ", responseData)
-      alert("login integration success")
     } catch (error) {
       console.error("failed to login", error)
     }
@@ -73,8 +72,12 @@ const Auth = () => {
       setIsSubmitting(true)
       const response = await fetch(`${BACKEND_URL}/users/register`, {body : data, method: "POST"} )
       const responseData = await response.json()
-      console.log("response Data: ", responseData)
-      alert("login integration success")
+      if(!responseData.ok) {
+        alert("failed to register")
+        return
+      }
+      setUserData(responseData.data.user)
+      redirect("/home")
     } catch (error) {
       console.error("failed to login", error)
     }
