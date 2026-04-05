@@ -3,174 +3,112 @@ import UserNavbar from "../../Components/UserNavbar";
 import Footer from "../../Components/Footer";
 import "../../Styles/Global.css";
 import { AuthContext } from "../../context/authContext";
-import api from "../../utils/api";
-import jobsApi from "../../utils/jobsApi";
-import reviewsApi from "../../utils/reviewsApi";
 
 export default function UserHistory() {
   const { user } = useContext(AuthContext);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [reviewingJob, setReviewingJob] = useState(null);
-
-  const [rating, setRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchHistory();
+    fetchJobs();
   }, []);
 
-  const fetchHistory = async () => {
+  const fetchJobs = async () => {
     try {
       setLoading(true);
-      const response = await jobsApi.getJobHistory();
-      setJobs(response.data || []);
+      const token = localStorage.getItem("access_token");
+      console.log("Token:", token);
+      
+      const response = await fetch("http://127.0.0.1:8000/api/jobs/", {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        }
+      });
+      
+      console.log("Response status:", response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("Jobs data:", data);
+      setJobs(data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Error fetching jobs:", err);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmitReview = async () => {
-    try {
-      const reviewData = {
-        rating,
-        comment,
-      };
-      await reviewsApi.createReview(reviewingJob.id, reviewData);
-
-      setJobs(prev => prev.map(j =>
-        j.id === reviewingJob.id
-          ? { ...j, review: { rating, comment, anonymous: isAnonymous } }
-          : j
-      ));
-      setReviewingJob(null);
-      setRating(0);
-      setComment("");
-      setIsAnonymous(false);
-      alert("Review submitted successfully!");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to submit review.");
-    }
-  };
-
   const USER_NAME = user?.name || "User";
+
+  if (loading) {
+    return (
+      <div>
+        <UserNavbar userName={USER_NAME} backTo="/user" />
+        <div style={{ padding: "50px", textAlign: "center" }}>Loading jobs...</div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <UserNavbar userName={USER_NAME} backTo="/user" />
+        <div style={{ padding: "50px", textAlign: "center", color: "red" }}>
+          Error: {error}<br/>
+          <button onClick={() => fetchJobs()} style={{ marginTop: "10px" }}>Try Again</button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="d-flex flex-column min-vh-100 animate-fade">
-      <UserNavbar userName="Aarav Sharma" backTo="/user" />
+      <UserNavbar userName={USER_NAME} backTo="/user" />
 
       <main className="sm-container sm-section">
         <header style={{ marginBottom: '2.5rem' }}>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--sm-navy)', margin: 0 }}>Project History</h1>
-          <p style={{ color: 'var(--sm-text-mid)', marginTop: '0.4rem' }}>Review your past projects and provide feedback.</p>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--sm-navy)', margin: 0 }}>My Jobs</h1>
+          <p style={{ color: 'var(--sm-text-mid)', marginTop: '0.4rem' }}>View all your service requests.</p>
         </header>
 
-        <div className="sm-history-grid">
-          {jobs.map((job) => (
-            <div key={job.id} className="sm-history-card animate-fade">
-              <div className="sm-history-card-body">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
+        <div>
+          {jobs.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3rem', border: '1px dashed #ccc', borderRadius: '12px' }}>
+              <p>No jobs found. Create your first job!</p>
+            </div>
+          ) : (
+            jobs.map((job) => (
+              <div key={job.id} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '1.5rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                   <div>
-                    <div className="sm-badge sm-badge-info" style={{ marginBottom: '0.6rem', fontSize: '0.65rem' }}>Project ID: #SM-{job.id}0{job.id}</div>
-                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--sm-navy)', margin: 0 }}>{job.title}</h3>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--sm-text-mid)', marginTop: '0.4rem' }}>
-                       with <strong style={{color: 'var(--sm-navy)'}}>{job.provider}</strong>
-                    </div>
+                    <span style={{ fontSize: '0.7rem', padding: '4px 8px', background: job.status === 'completed' ? '#22c55e' : '#f4a261', color: 'white', borderRadius: '20px' }}>
+                      {job.status || 'pending'}
+                    </span>
+                    <h3 style={{ margin: '10px 0 5px' }}>{job.title}</h3>
+                    <p style={{ color: '#64748b', margin: 0 }}>{job.description}</p>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--sm-orange)' }}>NRS {job.amount.toLocaleString()}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--sm-text-light)', marginTop: '0.25rem' }}>{job.date}</div>
+                    <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#f4a261' }}>NRS {job.budget}</div>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{job.created_at ? new Date(job.created_at).toLocaleDateString() : 'N/A'}</div>
                   </div>
                 </div>
-
-                {job.review && (
-                  <div style={{ padding: '1rem', background: 'var(--sm-navy-light)', borderRadius: '12px', marginTop: '1.25rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                      <div style={{ color: '#f59e0b', fontSize: '1.1rem' }}>
-                        {"★".repeat(job.review.rating)}{"☆".repeat(5 - job.review.rating)}
-                      </div>
-                      {job.review.anonymous && <span className="sm-badge" style={{ fontSize: '0.6rem', background: 'var(--sm-navy)', color: '#fff' }}>Anonymous</span>}
-                    </div>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--sm-navy)', margin: 0, fontStyle: 'italic' }}>"{job.review.comment}"</p>
-                  </div>
-                )}
+                <div style={{ display: 'flex', gap: '1rem', paddingTop: '1rem', borderTop: '1px solid #e2e8f0' }}>
+                  <span style={{ fontSize: '0.75rem', padding: '4px 8px', background: '#f1f5f9', borderRadius: '4px' }}>{job.category_name || 'General'}</span>
+                  <span style={{ fontSize: '0.75rem', padding: '4px 8px', background: '#f1f5f9', borderRadius: '4px' }}>📍 {job.city || 'N/A'}</span>
+                </div>
               </div>
-
-              <div className="sm-history-card-footer">
-                {!job.review ? (
-                  <button className="sm-btn sm-btn-primary" style={{ padding: '0.6rem 1.4rem', fontSize: '0.85rem' }} onClick={() => setReviewingJob(job)}>
-                    Leave a Feedback
-                  </button>
-                ) : (
-                  <span className="sm-badge sm-badge-success" style={{border: '1.5px solid var(--sm-success)'}}>✅ Feedback Received</span>
-                )}
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </main>
-
-      {/* --- Review Modal --- */}
-      {reviewingJob && (
-        <div className="sm-overlay animate-fade" onClick={() => setReviewingJob(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div className="sm-card" onClick={e => e.stopPropagation()} style={{ width: '90%', maxWidth: '450px', padding: '2.5rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--sm-navy)', marginBottom: '0.5rem' }}>Rate Service</h2>
-            <p style={{ color: 'var(--sm-text-mid)', fontSize: '0.9rem', marginBottom: '2rem' }}>How was your experience with <strong>{reviewingJob.provider}</strong>?</p>
-
-            <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-              <div style={{ fontSize: '2.5rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}>
-                {[1, 2, 3, 4, 5].map(star => (
-                  <span
-                    key={star}
-                    style={{ cursor: 'pointer', color: star <= rating ? '#f59e0b' : '#e2e8f0', transition: 'color 0.2s' }}
-                    onClick={() => setRating(star)}
-                  >
-                    ★
-                  </span>
-                ))}
-              </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--sm-text-light)', marginTop: '0.5rem' }}>Tap to rate</div>
-            </div>
-
-            <div className="sm-input-group">
-              <label className="sm-label">Your Review</label>
-              <textarea
-                className="sm-input"
-                style={{ minHeight: '100px' }}
-                placeholder="Share more details about the service..."
-                value={comment}
-                onChange={e => setComment(e.target.value)}
-              />
-            </div>
-
-            <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', marginBottom: '2rem', userSelect: 'none' }}>
-              <input
-                type="checkbox"
-                checked={isAnonymous}
-                onChange={e => setIsAnonymous(e.target.checked)}
-                style={{ width: '18px', height: '18px', cursor: 'pointer' }}
-              />
-              <span style={{ fontSize: '0.9rem', color: 'var(--sm-text-mid)', fontWeight: 500 }}>Post review anonymously</span>
-            </label>
-
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <button className="sm-btn sm-btn-outline" style={{ flex: 1 }} onClick={() => setReviewingJob(null)}>Cancel</button>
-              <button
-                className="sm-btn sm-btn-primary"
-                style={{ flex: 1 }}
-                disabled={!rating}
-                onClick={handleSubmitReview}
-              >
-                Submit Review
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <Footer />
     </div>

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .models import CustomUser, ProviderProfile
@@ -8,10 +8,13 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from categories.models import Category
 from django.contrib.auth import authenticate
 
+
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register(request):
     data = request.data
     required = ['name', 'email', 'password', 'phone', 'role']
+    
     for field in required:
         if field not in data:
             return Response({field: 'This field is required'}, status=400)
@@ -29,14 +32,14 @@ def register(request):
         user=user,
         name=data['name'],
         phone=data['phone'],
-        address='',
+        address=data.get('address', ''),
         role=data['role'],
         profile_image=None
     )
     
+    # Handle categories ONLY for service provider
     if data['role'] == 'service_provider':
-        profile = ProviderProfile.objects.create(custom_user=custom_user)
-        
+        profile, created = ProviderProfile.objects.get_or_create(custom_user=custom_user)
         category_ids = data.get('category_ids', [])
         for cat_id in category_ids:
             try:
@@ -57,8 +60,10 @@ def register(request):
             'role': custom_user.role
         }
     }, status=201)
-    
+
+
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def login(request):
     email = request.data.get('email')
     password = request.data.get('password')
@@ -76,7 +81,11 @@ def login(request):
     if not user:
         return Response({'error': 'Invalid credentials'}, status=401)
     
-    custom_user = CustomUser.objects.get(user=user)
+    try:
+        custom_user = CustomUser.objects.get(user=user)
+    except CustomUser.DoesNotExist:
+        return Response({'error': 'User profile not found'}, status=404)
+    
     refresh = RefreshToken.for_user(user)
     
     return Response({
@@ -89,74 +98,63 @@ def login(request):
             'role': custom_user.role
         }
     })
-    
 
-# ----------------------------
-# GET ALL SERVICE PROVIDERS
-# ----------------------------
+
 @api_view(['GET'])
 def get_service_providers(request):
-
     providers = CustomUser.objects.filter(role="service_provider")
-
     data = []
-
+    
     for p in providers:
-
         profile = ProviderProfile.objects.filter(custom_user=p).first()
-
         categories = []
-
+        
         if profile:
             categories = [c.name for c in profile.categories.all()]
-
+        
         data.append({
-            "id":p.id,
-            "name":p.name,
-            "email":p.user.email,
-            "phone":p.phone,
-            "category":categories
+            "id": p.id,
+            "name": p.name,
+            "email": p.user.email,
+            "phone": p.phone,
+            "category": categories
         })
-
+    
     return Response(data)
 
 
-# ----------------------------
-# GET PROVIDER DETAIL
-# ----------------------------
 @api_view(['GET'])
-def get_provider_detail(request,id):
-
+def get_provider_detail(request, id):
     try:
-        provider = CustomUser.objects.get(id=id,role="service_provider")
+        provider = CustomUser.objects.get(id=id, role="service_provider")
     except CustomUser.DoesNotExist:
-        return Response({"error":"Provider not found"},status=404)
-
+        return Response({"error": "Provider not found"}, status=404)
+    
     profile = ProviderProfile.objects.filter(custom_user=provider).first()
-
     categories = []
-
+    
     if profile:
         categories = [c.name for c in profile.categories.all()]
-
+    
     data = {
-        "id":provider.id,
-        "name":provider.name,
-        "email":provider.user.email,
-        "phone":provider.phone,
-        "category":categories
+        "id": provider.id,
+        "name": provider.name,
+        "email": provider.user.email,
+        "phone": provider.phone,
+        "category": categories
     }
-
+    
     return Response(data)
 
 
-# ----------------------------
-# GET USER PROFILE (ADDED)
-# ----------------------------
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_profile(request):
-    custom_user = request.user.custom_user
+    try:
+        custom_user = request.user.custom_user
+    except AttributeError:
+        return Response({'error': 'User profile not found'}, status=404)
+    
     return Response({
         'id': custom_user.id,
         'name': custom_user.name,

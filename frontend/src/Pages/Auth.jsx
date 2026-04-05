@@ -18,7 +18,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [role, setRole] = useState("client");
-  const [categories, setCategories] = useState([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, token, setUserData } = useContext(AuthContext);
 
@@ -31,22 +31,17 @@ const Auth = () => {
     }
   }, [user, token]);
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
 
-  // toggle categories by ID only
+
   const toggleCategory = (catId) => {
-    setCategories((prev) =>
+    setSelectedCategoryIds((prev) =>
       prev.includes(catId) ? prev.filter((c) => c !== catId) : [...prev, catId]
     );
   };
 
   const handleRedirect = (userRole) => {
     if (userRole === "admin") navigate("/admin");
-    else if (userRole === "provider") navigate("/provider");
+    else if (userRole === "service_provider") navigate("/provider");
     else navigate("/user");
   };
 
@@ -65,7 +60,7 @@ const Auth = () => {
       handleRedirect(response.data.user.role);
     } catch (error) {
       console.error("failed to login", error);
-      alert(error.message || "Login failed. Please check your credentials.");
+      alert(error.response?.data?.error || "Login failed. Please check your credentials.");
     } finally {
       setIsSubmitting(false);
     }
@@ -83,38 +78,36 @@ const Auth = () => {
     try {
       setIsSubmitting(true);
       
-      // If provider, fetch categories and map names to IDs
+      // For provider, get category IDs from database
       let categoryIds = [];
-      if (role === "provider" && categories.length > 0) {
+      if (role === "service_provider" && selectedCategoryIds.length > 0) {
         const catsResponse = await categoriesApi.getCategories();
         const allCategories = catsResponse.data || [];
-        categoryIds = categories
-          .map(catName => {
-            const matched = allCategories.find(c => c.name.toLowerCase() === catName.toLowerCase());
-            return matched ? matched.id : null;
-          })
-          .filter(id => id !== null);
+        categoryIds = selectedCategoryIds.filter(id => 
+          allCategories.some(c => c.id === id)
+        );
       }
 
-      const data = {
-        email: formData.get("email"),
-        password: formData.get("password"),
-        name: formData.get("fullName"),
-        phone: formData.get("phoneNumber"),
-        role: role,
-        category_ids: categoryIds,
-      };
+    const data = {
+  name: formData.get("fullName"),        // ← fullName → name
+  email: formData.get("email"),
+  phone: formData.get("phoneNumber"),    // ← phoneNumber → phone
+  password: formData.get("password"),
+  role: role,
+  category_ids: categoryIds,
+};
 
       const response = await api.post("/users/register/", data);
       setUserData(response.data.user, response.data.token);
       handleRedirect(response.data.user.role);
     } catch (error) {
       console.error("failed to register", error);
-      alert(error.message || "Registration failed. Please try again.");
+      alert(error.response?.data?.error || "Registration failed. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
   return (
     <div className="auth-container">
       <div className={`auth-card ${isLogin ? "login-mode" : "register-mode"}`}>
@@ -129,7 +122,7 @@ const Auth = () => {
             <div className="forgot-link">
               <a href="#">Forgot password?</a>
             </div>
-            <button type="submit" className="btn-solid">SIGN IN</button>
+            <button type="submit" className="btn-solid" disabled={isSubmitting}>SIGN IN</button>
           </form>
         </div>
 
@@ -140,8 +133,8 @@ const Auth = () => {
           <form onSubmit={handleSignUpHandle}>
             {/* Role toggle */}
             <div className="role-toggle">
-              <button type="button" className={`role-btn ${role === "client" ? "role-active" : ""}`} onClick={() => { setRole("client"); setCategories([]); }}>Client</button>
-              <button type="button" className={`role-btn ${role === "provider" ? "role-active" : ""}`} onClick={() => setRole("provider")}>Service Provider</button>
+              <button type="button" className={`role-btn ${role === "client" ? "role-active" : ""}`} onClick={() => { setRole("client"); setSelectedCategoryIds([]); }}>Client</button>
+              <button type="button" className={`role-btn ${role === "service_provider" ? "role-active" : ""}`} onClick={() => setRole("service_provider")}>Service Provider</button>
             </div>
 
             <input name="fullName" type="text" placeholder="Full Name" className="auth-input" required />
@@ -151,18 +144,17 @@ const Auth = () => {
             <input name="confirmPassword" type="password" placeholder="Confirm Password" className="auth-input" required />
 
             {/* SERVICE CATEGORIES */}
-            {role === "provider" && (
+            {role === "service_provider" && (
               <div className="service-checkbox-group">
                 <p className="service-checkbox-label">Select Services Offered</p>
                 <div className="service-checkbox-grid">
                   {serviceCategories.map((cat) => (
-                    <label key={cat} className={`service-checkbox-item ${categories.includes(cat) ? "checked" : ""}`}>
+                    <label key={cat.id} className={`service-checkbox-item ${selectedCategoryIds.includes(cat.id) ? "checked" : ""}`}>
                       <input
-                        name="serviceCheckbox"
                         type="checkbox"
-                        value={cat}
-                        checked={categories.includes(cat)}
-                        onChange={() => toggleCategory(cat)}
+                        value={cat.id}
+                        checked={selectedCategoryIds.includes(cat.id)}
+                        onChange={() => toggleCategory(cat.id)}
                       />
                       <span className="checkbox-icon"></span>
                       {cat.name}
@@ -172,7 +164,7 @@ const Auth = () => {
               </div>
             )}
 
-            <button type="submit" className="btn-solid">SIGN UP</button>
+            <button type="submit" className="btn-solid" disabled={isSubmitting}>SIGN UP</button>
           </form>
         </div>
 

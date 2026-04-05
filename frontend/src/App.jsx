@@ -23,6 +23,7 @@ import SPProfile from "./Pages/ServiceProvider/SPProfile";
 // 👇 ADD THESE IMPORTS
 import PaymentGateway from "./Pages/Payment/PaymentGateway";
 import EsewaCallback from "./Pages/Payment/EsewaCallback";
+import UserHistory from "./Pages/User/UserHistory";
 import "./Styles/Global.css";
 
 import KhaltiSuccess from "./Pages/Payment/KhaltiSuccess";
@@ -45,10 +46,8 @@ function App() {
         <Route path="/admin/payments" element={<AdminPayments />} />
         <Route path="/admin/payments/:id" element={<AdminPayments />} />
         <Route path="/admin/kyc" element={<AdminKYC />} />
-       
-        <Route path="/payment/khaltiSuccess" element={<KhaltiSuccess />} />
-<Route path="/payment/failed" element={<EsewaFailed />} />
-<Route path="/test-esewa" element={<TestEsewa />} />
+        
+        
       </Routes>
     );
   }
@@ -71,6 +70,12 @@ function App() {
         <Route path="/user" element={<UserDashboard />} />
         <Route path="/user/posts/:id" element={<UserPostDetail />} />
         <Route path="/user/profile" element={<UserProfile />} />
+        <Route path="/payment/khaltiSuccess" element={<KhaltiSuccess />} />
+        <Route path="/payment/failed" element={<EsewaFailed />} />
+        <Route path="/test-esewa" element={<TestEsewa />} />
+
+// Add inside user routes section
+        <Route path="/user/history" element={<UserHistory />} />
       </Routes>
     );
   }
