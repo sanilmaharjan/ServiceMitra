@@ -1,13 +1,25 @@
 import api from "./api";
 
 const providerApi = {
-  getStats: () => api.get("/provider/stats/"),
+  getStats: async () => {
+    const response = await api.get("/provider/stats/");
+    return { data: response };
+  },
   
-  getProfile: () => api.get("/provider/profile/"),
+  getProfile: async () => {
+    const response = await api.get("/provider/profile/");
+    return { data: response };
+  },
   
-  updateProfile: (data) => api.patch("/provider/profile/", data),
+  updateProfile: async (data) => {
+    const response = await api.patch("/provider/profile/", data);
+    return { data: response };
+  },
   
-  getPortfolio: () => api.get("/provider/portfolio/"),
+  getPortfolio: async () => {
+    const response = await api.get("/provider/portfolio/");
+    return { data: response };
+  },
 };
 
 export default providerApi;

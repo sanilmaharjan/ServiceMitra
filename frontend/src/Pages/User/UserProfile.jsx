@@ -1,9 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
 import UserNavbar from "../../Components/UserNavbar";
 import "../../Styles/User.css";
 import { AuthContext } from "../../context/authContext";
-import api from "../../utils/api";
 import authApi from "../../utils/authApi";
 
 export default function UserProfile() {
@@ -76,7 +74,7 @@ export default function UserProfile() {
             <div style={{width: '80px', height: '80px', background: 'var(--sm-navy)', color: '#fff', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '1.8rem'}}>{initials}</div>
             <div>
               <h1 style={{fontSize: '1.75rem', fontWeight: 800, color: 'var(--sm-navy)', margin: '0 0 0.25rem'}}>{profile.name}</h1>
-              <p style={{margin: 0, color: 'var(--sm-text-light)', fontSize: '0.9rem'}}>📍 {profile.location} · 📧 {profile.email}</p>
+              <p style={{margin: 0, color: 'var(--sm-text-light)', fontSize: '0.9rem'}}>{profile.location} · {profile.email}</p>
             </div>
           </div>
 
@@ -109,7 +107,7 @@ export default function UserProfile() {
             </div>
 
             <div style={{display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem'}}>
-              {saved && <span style={{display: 'flex', alignItems: 'center', color: 'var(--sm-success)', fontSize: '0.85rem', fontWeight: 600}}>✓ Settings Saved</span>}
+              {saved && <span style={{display: 'flex', alignItems: 'center', color: 'var(--sm-success)', fontSize: '0.85rem', fontWeight: 600}}>Settings Saved</span>}
               <button className="sm-btn sm-btn-ghost" onClick={() => setForm(profile)}>Reset</button>
               <button className="sm-btn sm-btn-primary" disabled={!changed} onClick={handleSave}>Save Profile Updates</button>
             </div>

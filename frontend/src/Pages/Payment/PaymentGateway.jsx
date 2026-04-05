@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function EsewaSuccess() {
@@ -12,7 +12,7 @@ export default function EsewaSuccess() {
   
   return (
     <div style={{ textAlign: 'center', padding: '50px' }}>
-      <h1 style={{ color: 'green' }}>✅ Payment Successful!</h1>
+      <h1 style={{ color: 'green' }}>Payment Successful!</h1>
       <p>Your payment has been completed.</p>
       <p>Redirecting to dashboard...</p>
     </div>

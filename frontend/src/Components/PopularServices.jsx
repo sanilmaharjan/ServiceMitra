@@ -1,6 +1,5 @@
-import React from "react";
-import "../styles/PopularServices.css";
-import servicesData from "../data/services.json";
+import servicesData from "../Data/services.json";
+import "../Styles/PopularServices.css";
 
 const PopularServices = () => {
   return (

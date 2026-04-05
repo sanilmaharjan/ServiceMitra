@@ -1,6 +1,6 @@
-import React, { useState, useContext } from "react";
-import SPNavbar from "../../Components/SPNavbar";
+import { useContext, useState } from "react";
 import Footer from "../../Components/Footer";
+import SPNavbar from "../../Components/SPNavbar";
 import "../../Styles/Global.css";
 import { AuthContext } from "../../context/authContext";
 import api from "../../utils/api";
@@ -84,7 +84,7 @@ export default function SPKYC() {
 
         {status === "success" && (
           <div className="sm-badge sm-badge-success" style={{ width: '100%', padding: '1.5rem', marginBottom: '2rem', fontSize: '1rem', justifyContent: 'center' }}>
-            🎉 KYC documents submitted successfully! Our team will review them within 24-48 hours.
+            KYC documents submitted successfully. Our team will review them within 24-48 hours.
           </div>
         )}
 

@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SPNavbar from "../../Components/SPNavbar";
 import "../../Styles/SP.css";
 import { AuthContext } from "../../context/authContext";
-import api from "../../utils/api";
 import bidsApi from "../../utils/bidsApi";
 
 export default function SPBids() {
@@ -105,7 +104,6 @@ export default function SPBids() {
         <div className="sm-grid">
           {filtered.length === 0 ? (
             <div className="sm-card" style={{textAlign: 'center', padding: '4rem 2rem'}}>
-              <div style={{fontSize: '2.5rem', marginBottom: '1rem'}}>📋</div>
               <p style={{color: 'var(--sm-text-light)'}}>No bids found in this category.</p>
             </div>
           ) : (
@@ -115,9 +113,9 @@ export default function SPBids() {
                    <div>
                       <h3 style={{fontSize: '1.2rem', fontWeight: 800, color: 'var(--sm-navy)', margin: '0 0 0.25rem'}}>{bid.postTitle}</h3>
                       <div style={{display: 'flex', gap: '1rem', fontSize: '0.8rem', color: 'var(--sm-text-light)'}}>
-                        <span>👤 {bid.client}</span>
-                        <span>📍 {bid.location}</span>
-                        <span>🕑 {bid.placedAt}</span>
+                        <span>{bid.client}</span>
+                        <span>{bid.location}</span>
+                        <span>{bid.placedAt}</span>
                       </div>
                    </div>
                    <div style={{textAlign: 'right'}}>
@@ -171,7 +169,6 @@ export default function SPBids() {
       {withdrawId && (
         <div className="sm-overlay animate-fade" onClick={() => setWithdrawId(null)} style={{position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.7)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000}}>
           <div className="sm-card" style={{maxWidth: '380px', textAlign: 'center'}}>
-             <div style={{fontSize: '2.5rem', marginBottom: '1rem'}}>🗑️</div>
              <h3 style={{fontWeight: 800, color: 'var(--sm-navy)'}}>Withdraw Proposal?</h3>
              <p style={{color: 'var(--sm-text-mid)', fontSize: '0.9rem', marginBottom: '1.5rem'}}>The client will no longer see your offer. This action cannot be undone.</p>
              <div style={{display: 'flex', gap: '0.75rem'}}>

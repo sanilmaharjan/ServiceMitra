@@ -1,11 +1,10 @@
-import React from "react";
 import "../Styles/Global.css";
 
 export default function Contact() {
   const contactInfo = [
-    { icon: "📞", title: "Call Us", details: "+977-1-4444444", sub: "Mon - Sat, 9am - 6pm" },
-    { icon: "✉️", title: "Email Us", details: "info@servicemitra.com", sub: "24/7 online support" },
-    { icon: "📍", title: "Visit Us", details: "Baneshwor, Kathmandu", sub: "Nepal, 44600" },
+    { title: "Call Us", details: "+977-1-4444444", sub: "Mon - Sat, 9am - 6pm" },
+    { title: "Email Us", details: "info@servicemitra.com", sub: "24/7 online support" },
+    { title: "Visit Us", details: "Baneshwor, Kathmandu", sub: "Nepal, 44600" },
   ];
 
   return (
@@ -25,7 +24,6 @@ export default function Contact() {
           <div className="sm-grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "2rem", marginBottom: "4rem" }}>
             {contactInfo.map((info, i) => (
               <div key={i} className="sm-card text-center" style={{ padding: "3rem 1.5rem" }}>
-                <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>{info.icon}</div>
                 <h3 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--sm-navy)", margin: "0 0 0.5rem" }}>{info.title}</h3>
                 <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "var(--sm-orange)", marginBottom: "0.25rem" }}>{info.details}</div>
                 <p style={{ color: "var(--sm-text-light)", fontSize: "0.85rem", margin: 0 }}>{info.sub}</p>
