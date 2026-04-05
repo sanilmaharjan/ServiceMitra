@@ -103,7 +103,6 @@ export default function SPPostList() {
 
         <div className="sp-controls">
           <div className="sp-search-wrap">
-            <span className="sp-search-icon">🔍</span>
             <input
               className="sp-search"
               placeholder="Search by title, category, or location…"
@@ -112,7 +111,7 @@ export default function SPPostList() {
             />
           </div>
           <div className="sp-filter-group">
-            {["all", "open", "bidding", "urgent"].map((f) => (
+            {["all", "open", "assigned", "urgent"].map((f) => (
               <button
                 key={f}
                 className={`sp-filter-btn ${filter === f ? "active" : ""}`}
@@ -170,14 +169,16 @@ export default function SPPostList() {
                 </div>
                 <div className="sp-post-card-footer">
                   <span className={`sp-post-status ${post.status}`}>
-                    {post.status === "open" ? "Open" : "Bidding Active"}
+                    {post.status === "open" ? "Open" : post.status === "assigned" ? "Assigned" : post.status === "completed" ? "Completed" : post.status === "in_progress" ? "In Progress" : "Unknown"}
                   </span>
-                  <button
-                    className="sp-bid-btn"
-                    onClick={() => setSelectedPost(post)}
-                  >
-                    Place Bid →
-                  </button>
+                  {post.status === 'open' && (
+                    <button
+                      className="sp-bid-btn"
+                      onClick={() => setSelectedPost(post)}
+                    >
+                      Place Bid →
+                    </button>
+                  )}
                 </div>
               </div>
             );

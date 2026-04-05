@@ -1,6 +1,6 @@
 // Pages/Payment/EsewaCallback.jsx
-import React, { useEffect, useState } from 'react';
-import { useSearchParams, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 
 export default function EsewaCallback() {
   const [searchParams] = useSearchParams();
@@ -23,7 +23,7 @@ export default function EsewaCallback() {
   if (status === 'success') {
     return (
       <div style={{ textAlign: 'center', padding: '50px' }}>
-        <h1 style={{ color: 'green' }}>✅ Payment Successful!</h1>
+        <h1 style={{ color: 'green' }}>Payment Successful!</h1>
         <p>{paymentType === 'advance' ? '20% advance' : '80% final'} payment completed.</p>
         <p>Transaction ID: {refId}</p>
         <p>Redirecting to dashboard...</p>
@@ -34,7 +34,7 @@ export default function EsewaCallback() {
   if (status === 'failed') {
     return (
       <div style={{ textAlign: 'center', padding: '50px' }}>
-        <h1 style={{ color: 'red' }}>❌ Payment Failed</h1>
+        <h1 style={{ color: 'red' }}>Payment Failed</h1>
         <p>Please try again.</p>
         <button 
           onClick={() => window.history.back()}
@@ -55,7 +55,7 @@ export default function EsewaCallback() {
   
   return (
     <div style={{ textAlign: 'center', padding: '50px' }}>
-      <h1>⏳ Processing Payment...</h1>
+      <h1>Processing Payment...</h1>
       <p>Please wait while we confirm your payment.</p>
     </div>
   );

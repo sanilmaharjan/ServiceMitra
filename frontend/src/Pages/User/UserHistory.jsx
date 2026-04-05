@@ -10,6 +10,7 @@ export default function UserHistory() {
   const { user } = useContext(AuthContext);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [reviewingJob, setReviewingJob] = useState(null);
 
   const [rating, setRating] = useState(0);
@@ -69,47 +70,46 @@ export default function UserHistory() {
         </header>
 
         <div className="sm-history-grid">
-          {jobs.map((job) => (
-            <div key={job.id} className="sm-history-card animate-fade">
-              <div className="sm-history-card-body">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
-                  <div>
-                    <div className="sm-badge sm-badge-info" style={{ marginBottom: '0.6rem', fontSize: '0.65rem' }}>Project ID: #SM-{job.id}0{job.id}</div>
-                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--sm-navy)', margin: 0 }}>{job.title}</h3>
-                    <div style={{ fontSize: '0.9rem', color: 'var(--sm-text-mid)', marginTop: '0.4rem' }}>
-                        with <strong style={{color: 'var(--sm-navy)'}}>{job.provider}</strong>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              <p>Loading project history...</p>
+            </div>
+          ) : error ? (
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              <p style={{ color: 'red' }}>{error}</p>
+              <button onClick={fetchHistory} className="sm-btn sm-btn-primary">Retry</button>
+            </div>
+          ) : jobs.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '2rem' }}>
+              <p>No jobs found. Your active jobs will appear here.</p>
+            </div>
+          ) : (
+            <div className="sm-grid" style={{gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.25rem'}}>
+              {jobs.map((job) => (
+                <div key={job.id} className="sm-card animate-fade" style={{ padding: '1.5rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                    <div>
+                      <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: 'var(--sm-navy)' }}>{job.title}</h3>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--sm-text-mid)', marginTop: '0.35rem' }}>{job.category_name || job.category}</div>
                     </div>
+                    <span className={`sm-badge ${job.status === 'pending' ? 'sm-badge-warning' : 'sm-badge-success'}`} style={{ textTransform: 'capitalize' }}>{job.status}</span>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--sm-orange)' }}>NRS {job.amount.toLocaleString()}</div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--sm-text-light)', marginTop: '0.25rem' }}>{job.date}</div>
+
+                  <p style={{ fontSize: '0.95rem', color: 'var(--sm-text-mid)', marginBottom: '1rem', minHeight: '3rem' }}>{job.description}</p>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--sm-text-light)' }}>
+                      <div><strong>Budget:</strong> NPR {job.budget}</div>
+                      <div><strong>Location:</strong> {job.city || job.address}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--sm-text-light)' }}>{new Date(job.created_at || job.preferred_start_date).toLocaleDateString()}</div>
+                    </div>
                   </div>
                 </div>
-
-                {job.review && (
-                  <div style={{ padding: '1rem', background: 'var(--sm-navy-light)', borderRadius: '12px', marginTop: '1.25rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
-                      <div style={{ color: '#f59e0b', fontSize: '1.1rem' }}>
-                        {"★".repeat(job.review.rating)}{"☆".repeat(5 - job.review.rating)}
-                      </div>
-                      {job.review.anonymous && <span className="sm-badge" style={{ fontSize: '0.6rem', background: 'var(--sm-navy)', color: '#fff' }}>Anonymous</span>}
-                    </div>
-                    <p style={{ fontSize: '0.9rem', color: 'var(--sm-navy)', margin: 0, fontStyle: 'italic' }}>"{job.review.comment}"</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="sm-history-card-footer">
-                {!job.review ? (
-                  <button className="sm-btn sm-btn-primary" style={{ padding: '0.6rem 1.4rem', fontSize: '0.85rem' }} onClick={() => setReviewingJob(job)}>
-                    Leave a Feedback
-                  </button>
-                ) : (
-                  <span className="sm-badge sm-badge-success" style={{border: '1.5px solid var(--sm-success)'}}>✅ Feedback Received</span>
-                )}
-              </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       </main>
 

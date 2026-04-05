@@ -21,10 +21,9 @@ export default function SPNavbar({ providerName = "Provider", backTo = "", isVer
       <div className="sp-navbar-brand">
         {backTo && (
           <button className="sp-back-btn" onClick={() => navigate(backTo)}>
-            ← Back
+            Back
           </button>
         )}
-        <span className="sp-brand-icon" onClick={() => navigate("/provider")} style={{cursor: 'pointer'}}>🔧</span>
         <span className="sp-brand-text" onClick={() => navigate("/provider")} style={{cursor: 'pointer'}}>
           Service<span>Mitra</span>
         </span>
@@ -43,7 +42,6 @@ export default function SPNavbar({ providerName = "Provider", backTo = "", isVer
           </button>
         )}
         <div className="sp-greeting">
-          {/* <span className="sp-greeting-emoji">{greeting.emoji}</span> */}
           <span className="sp-greeting-text">
             {greeting.text}, {firstName}!
           </span>

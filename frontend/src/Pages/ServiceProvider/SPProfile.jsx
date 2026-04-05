@@ -138,14 +138,13 @@ export default function SPProfile() {
                     onClick={() => toggleSkill(skill)}
                   >
                     {skill}
-                    {form.skills.includes(skill) && <span style={{marginLeft: '0.25rem'}}>✓</span>}
                   </button>
                 ))}
               </div>
             </div>
 
             <div style={{display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem'}}>
-              {saved && <span style={{display: 'flex', alignItems: 'center', color: 'var(--sm-success)', fontSize: '0.85rem', fontWeight: 600}}>✓ Profile Persistent</span>}
+              {saved && <span style={{display: 'flex', alignItems: 'center', color: 'var(--sm-success)', fontSize: '0.85rem', fontWeight: 600}}>Profile Saved</span>}
               <button className="sm-btn sm-btn-ghost" onClick={() => setForm(profile)}>Reset</button>
               <button className="sm-btn sm-btn-primary" disabled={!changed} onClick={handleSave}>Save Profile Updates</button>
             </div>

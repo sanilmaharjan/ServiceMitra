@@ -250,6 +250,59 @@ def reject_bid(request, bid_id):
     return Response({'message': 'Bid rejected'})
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_bids(request):
+    user = request.user.custom_user
+    if user.role != 'service_provider':
+        return Response({'error': 'Only service providers can view their bids'}, status=403)
+
+    bids = Bid.objects.filter(provider=user).order_by('-created_at')
+    serializer = BidSerializer(bids, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def bid_detail(request, bid_id):
+    user = request.user.custom_user
+    bid = get_object_or_404(Bid, id=bid_id)
+    job = bid.job
+
+    if user.role == 'service_provider' and bid.provider != user:
+        return Response({'error': 'Access denied'}, status=403)
+    if user.role == 'client' and job.client != user:
+        return Response({'error': 'Access denied'}, status=403)
+    if user.role == 'admin':
+        return Response({'error': 'Access denied'}, status=403)
+
+    if request.method == 'GET':
+        serializer = BidSerializer(bid)
+        return Response(serializer.data)
+
+    if request.method in ['PUT', 'PATCH']:
+        if user.role != 'service_provider' or bid.provider != user:
+            return Response({'error': 'Only the provider can update this bid'}, status=403)
+        if bid.status != 'submitted':
+            return Response({'error': 'Only pending bids can be updated'}, status=400)
+
+        serializer = BidSerializer(bid, data=request.data, partial=(request.method == 'PATCH'))
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=400)
+
+    if request.method == 'DELETE':
+        if user.role != 'service_provider' or bid.provider != user:
+            return Response({'error': 'Only the provider can withdraw this bid'}, status=403)
+        if bid.status != 'submitted':
+            return Response({'error': 'Only pending bids can be withdrawn'}, status=400)
+
+        bid.status = 'withdrawn'
+        bid.save()
+        return Response({'message': 'Bid withdrawn'})
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def start_job(request, job_id):

@@ -105,7 +105,6 @@ export default function AdminUsers() {
       <div className="admin-layout">
         <AdminNavbar
           backTo="/admin"
-          pageIcon="👥"
           pageTitle="Community Users"
         />
         <main className="sm-container sm-section">
@@ -119,7 +118,7 @@ export default function AdminUsers() {
 
   return (
     <div className="admin-layout animate-fade">
-      <AdminNavbar backTo="/admin" pageIcon="👥" pageTitle="Community Users" />
+      <AdminNavbar backTo="/admin" pageTitle="Community Users" />
 
       <main className="sm-container sm-section">
         <header
@@ -290,7 +289,7 @@ export default function AdminUsers() {
                     {getRoleBadge(user.role)}
                     {user.role === "service_provider" && (
                       <div style={{ fontSize: "0.7rem", marginTop: "0.25rem" }}>
-                        {user.is_verified ? "✓ Verified" : "⏳ Pending"}
+                        {user.is_verified ? "Verified" : "Pending"}
                       </div>
                     )}
                   </td>
@@ -364,7 +363,7 @@ export default function AdminUsers() {
             style={{ maxWidth: "400px", textAlign: "center" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>⚠️</div>
+            <div style={{ fontSize: "1rem", marginBottom: "1rem" }}>Attention</div>
             <h3 style={{ fontWeight: 800, color: "var(--sm-navy)" }}>
               Delete User?
             </h3>

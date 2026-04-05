@@ -120,7 +120,7 @@ export default function AdminKYC() {
   if (loading) {
     return (
       <div className="admin-layout">
-        <AdminNavbar backTo="/admin" pageIcon="📋" pageTitle="KYC Verification" />
+        <AdminNavbar backTo="/admin" pageTitle="KYC Verification" />
         <main className="sm-container sm-section">
           <div style={{textAlign: 'center', padding: '3rem'}}>Loading pending verifications...</div>
         </main>
@@ -132,7 +132,6 @@ export default function AdminKYC() {
     <div className="admin-layout animate-fade">
       <AdminNavbar 
         backTo="/admin" 
-        pageIcon="📋" 
         pageTitle="KYC Verification"
         rightSlot={
           <span className="admin-count-chip urgent" style={{background: '#fef3c7', color: '#92400e', padding: '0.25rem 0.75rem', borderRadius: '20px'}}>
@@ -194,7 +193,6 @@ export default function AdminKYC() {
 
         {filteredList.length === 0 ? (
           <div className="sm-card" style={{textAlign: 'center', padding: '3rem'}}>
-            <div style={{fontSize: '3rem', marginBottom: '1rem'}}>✅</div>
             <h3 style={{color: 'var(--sm-navy)', marginBottom: '0.5rem'}}>No Pending Verifications</h3>
             <p style={{color: 'var(--sm-text-mid)'}}>All service providers have been verified</p>
           </div>
@@ -249,10 +247,10 @@ export default function AdminKYC() {
                 <div style={{marginBottom: '1rem', padding: '0.75rem', background: 'var(--sm-gray-light)', borderRadius: '8px'}}>
                   <div style={{fontSize: '0.75rem', color: 'var(--sm-text-light)', marginBottom: '0.5rem'}}>Documents:</div>
                   <div style={{display: 'flex', gap: '0.5rem', flexWrap: 'wrap'}}>
-                    {provider.citizenship_number && <span style={{fontSize: '0.7rem'}}>✓ Citizenship</span>}
-                    {provider.pan_number && <span style={{fontSize: '0.7rem'}}>✓ PAN Card</span>}
-                    {provider.license_number && <span style={{fontSize: '0.7rem'}}>✓ License</span>}
-                    {provider.insurance_provider && <span style={{fontSize: '0.7rem'}}>✓ Insurance</span>}
+                    {provider.citizenship_number && <span style={{fontSize: '0.7rem'}}>Citizenship</span>}
+                    {provider.pan_number && <span style={{fontSize: '0.7rem'}}>PAN Card</span>}
+                    {provider.license_number && <span style={{fontSize: '0.7rem'}}>License</span>}
+                    {provider.insurance_provider && <span style={{fontSize: '0.7rem'}}>Insurance</span>}
                     {getDocumentCount(provider) === 0 && (
                       <span style={{fontSize: '0.7rem', color: 'var(--sm-text-light)'}}>No documents uploaded</span>
                     )}

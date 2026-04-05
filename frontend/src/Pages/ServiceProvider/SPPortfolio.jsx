@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import SPNavbar from "../../Components/SPNavbar";
 import "../../Styles/SP.css";
 import { AuthContext } from "../../context/authContext";
-import api from "../../utils/api";
 import providerApi from "../../utils/providerApi";
 
 export default function SPPortfolio() {
@@ -45,11 +44,11 @@ export default function SPPortfolio() {
           <div style={{width: '100px', height: '100px', background: 'var(--sm-white)', color: 'var(--sm-navy)', borderRadius: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', fontWeight: 900}}>{initials}</div>
           <div style={{flex: 1}}>
             <h1 style={{fontSize: '2.2rem', fontWeight: 800, margin: '0 0 0.5rem'}}>{provider.name}</h1>
-            <p style={{fontSize: '1.1rem', opacity: 0.9, margin: '0 0 1rem'}}>{provider.category} · 📍 {provider.location}</p>
+            <p style={{fontSize: '1.1rem', opacity: 0.9, margin: '0 0 1rem'}}>{provider.category} · {provider.location}</p>
             <div style={{display: 'flex', gap: '1.5rem', fontSize: '0.9rem', opacity: 0.8}}>
-              <span>⭐ {provider.rating} ({provider.totalReviews} Reviews)</span>
-              <span>📅 {provider.memberSince}</span>
-              <span>✅ {provider.completedJobs} Jobs</span>
+              <span>Rating: {provider.rating} ({provider.totalReviews} Reviews)</span>
+              <span>Joined: {provider.memberSince}</span>
+              <span>Completed Jobs: {provider.completedJobs}</span>
             </div>
           </div>
         </section>
@@ -68,7 +67,7 @@ export default function SPPortfolio() {
               <div className="sm-grid" style={{gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1rem'}}>
                 {provider.certifications.map((cert, i) => (
                   <div key={i} style={{padding: '1.25rem', border: '1px solid var(--sm-gray-border)', borderRadius: '12px', background: 'var(--sm-gray-light)'}}>
-                    <div style={{fontSize: '1.5rem', marginBottom: '0.5rem'}}>🏆</div>
+                    <div style={{fontSize: '1rem', marginBottom: '0.5rem', fontWeight: 700, color: 'var(--sm-navy)'}}>Certification</div>
                     <div style={{fontWeight: 700, fontSize: '0.95rem', color: 'var(--sm-navy)', marginBottom: '0.25rem'}}>{cert.title}</div>
                     <div style={{fontSize: '0.8rem', color: 'var(--sm-text-light)'}}>{cert.issuer} · {cert.year}</div>
                   </div>
@@ -84,7 +83,7 @@ export default function SPPortfolio() {
                   <div key={rev.id} style={{paddingBottom: '1.25rem', borderBottom: i < provider.reviews.length - 1 ? '1px solid var(--sm-gray-border)' : 'none', marginBottom: i < provider.reviews.length - 1 ? '1.25rem' : '0'}}>
                     <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem'}}>
                       <div style={{fontWeight: 700, fontSize: '0.95rem'}}>{rev.client}</div>
-                      <div style={{color: 'var(--sm-orange)', fontWeight: 800}}>⭐ {rev.rating}</div>
+                      <div style={{color: 'var(--sm-orange)', fontWeight: 800}}>{rev.rating}</div>
                     </div>
                     <p style={{margin: '0 0 0.5rem', fontSize: '0.85rem', color: 'var(--sm-text-mid)', fontStyle: 'italic'}}>"{rev.comment}"</p>
                     <div style={{fontSize: '0.75rem', color: 'var(--sm-text-light)'}}>{rev.date}</div>

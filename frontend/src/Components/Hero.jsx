@@ -1,7 +1,6 @@
-import React from "react";
 import { Link } from "react-router-dom";
-import "../styles/Hero.css";
-import providerImg from "../assets/serviceprovider.jpg";
+import providerImg from "../Assets/serviceprovider.jpg";
+import "../Styles/Hero.css";
 
 const Hero = () => {
   return (

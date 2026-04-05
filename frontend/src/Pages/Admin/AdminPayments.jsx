@@ -1,355 +1,155 @@
-<<<<<<< HEAD
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import AdminNavbar from "../../Components/AdminNavbar";
 import "../../Styles/Admin.css";
 import adminApi from "../../utils/adminApi";
-=======
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import AdminNavbar from "../../Components/AdminNavbar";
-import "../../Styles/Admin.css";
-
-const API_BASE = 'http://127.0.0.1:8000/api';
-
-const getToken = () => localStorage.getItem('access_token');
->>>>>>> a4e8df5d4054650f1f6d7351e4ec0d47a55be2ff
 
 export default function AdminPayments() {
-  const navigate = useNavigate();
-  const [providers, setProviders] = useState([]);
-  const [loadingProviders, setLoadingProviders] = useState(true);
-  const [selectedProvider, setSelectedProvider] = useState(null);
+  const [pendingProviders, setPendingProviders] = useState([]);
   const [paymentHistory, setPaymentHistory] = useState([]);
-  const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState("cash");
-  const [note, setNote] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  const [apiError, setApiError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("pending");
 
   useEffect(() => {
-    loadProviders();
-    loadPaymentHistory();
+    fetchData();
   }, []);
 
-  const loadProviders = async () => {
-    setLoadingProviders(true);
-    const token = getToken();
-    
-    if (!token) {
-      setLoadingProviders(false);
-      return;
-    }
-    
+  const fetchData = async () => {
     try {
-      const response = await fetch(`${API_BASE}/jobs/?status=completed`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      if (response.ok) {
-        const jobs = await response.json();
-        const providerMap = new Map();
-        
-        for (const job of jobs) {
-          if (job.provider && job.payment_status !== 'released') {
-            const providerId = job.provider.id;
-            if (!providerMap.has(providerId)) {
-              providerMap.set(providerId, {
-                id: providerId,
-                name: job.provider.name || job.provider.username,
-                avatar: (job.provider.name || job.provider.username || 'P').slice(0,2).toUpperCase(),
-                category: job.category?.name || 'General',
-                balance: 0,
-                jobs: []
-              });
-            }
-            const provider = providerMap.get(providerId);
-            provider.balance += Number(job.budget) * 0.93;
-            provider.jobs.push(job);
-          }
-        }
-        
-        setProviders(Array.from(providerMap.values()));
-      }
-    } catch (error) {
-      console.error("Error loading providers:", error);
-      setProviders(MOCK_PROVIDERS);
-    }
-    setLoadingProviders(false);
-  };
-
-  const loadPaymentHistory = async () => {
-    const token = getToken();
-    if (!token) return;
-    
-    try {
-      const response = await fetch(`${API_BASE}/payment/admin/payment-history/`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setPaymentHistory(data);
-      }
-    } catch (error) {
-      console.error("Error loading history:", error);
-    }
-  };
-
-  // KHALTI + CASH payment handler
-  const handlePay = async (e) => {
-    e.preventDefault();
-    if (!amount || Number(amount) <= 0) {
-      setApiError("Enter a valid amount");
-      return;
-    }
-    
-    setApiError("");
-    setLoading(true);
-    
-    const token = getToken();
-    const jobId = selectedProvider.jobs?.[0]?.id || 1;
-    
-    try {
-      if (method === 'khalti') {
-        // Khalti payment - call backend
-        const response = await fetch(`${API_BASE}/payment/initiate-khalti/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            amount: amount,
-            job_id: jobId
-          })
-        });
-        
-        const data = await response.json();
-        console.log("Khalti response:", data);
-        
-        if (data.payment_url) {
-          // Redirect to Khalti payment page
-          window.location.href = data.payment_url;
-          return;
-        } else {
-          setApiError(data.error || "Failed to initiate Khalti payment");
-          setLoading(false);
-        }
-      } else {
-        // Cash payment
-        alert(`Cash payment of Rs. ${amount} recorded for ${selectedProvider.name}`);
-        setSelectedProvider(null);
-        setAmount("");
-        setLoading(false);
-      }
-    } catch (error) {
-      console.error("Payment error:", error);
-      setApiError("Payment failed. Please try again.");
+      setLoading(true);
+      const [pendingRes, historyRes] = await Promise.all([
+        adminApi.getPendingProviders(),
+        adminApi.getPaymentHistory(),
+      ]);
+      setPendingProviders(pendingRes.data || []);
+      setPaymentHistory(historyRes.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
       setLoading(false);
     }
   };
 
-  const paymentMethods = [
-    { value: "cash", label: "Cash", icon: "💵" },
-    { value: "khalti", label: "Khalti", icon: "🟣" },
-  ];
-
-  const MOCK_PROVIDERS = [
-    { id: 1, name: "Ramesh Sharma", avatar: "RS", category: "Electrical", balance: 12500, jobs: [{ id: 1 }] },
-    { id: 2, name: "Sita Kumari", avatar: "SK", category: "Cleaning", balance: 4200, jobs: [{ id: 2 }] },
-    { id: 3, name: "Bikram Thapa", avatar: "BT", category: "Painting", balance: 18000, jobs: [{ id: 3 }] },
-  ];
-
-  const displayProviders = providers.length > 0 ? providers : MOCK_PROVIDERS;
-
-  if (!selectedProvider) {
-    return (
-      <div className="admin-layout animate-fade">
-        <AdminNavbar pageIcon="💳" pageTitle="Provider Payouts" />
-        <main className="admin-main">
-          <div className="admin-page-header">
-            <h1>Provider Payouts</h1>
-            <p>Service providers with pending earnings</p>
-          </div>
-          <div className="admin-table-card">
-<<<<<<< HEAD
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Provider</th>
-                  <th>Category</th>
-                  <th>Last Job</th>
-                  <th>Pending Balance</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {unpaidProviders.length === 0 ? (
-                  <tr><td colSpan={5} className="admin-empty">No pending payouts.</td></tr>
-                ) : (
-                  unpaidProviders.map((p) => (
-                    <tr key={p.id} className="admin-table-row">
-                      <td>
-                        <div className="admin-user-cell">
-                          <div className="admin-avatar-sm" style={{background: 'var(--sm-navy)'}}>{p.avatar}</div>
-                          <div>
-                            <div className="admin-user-name">{p.name}</div>
-                            <div className="admin-user-email">{p.rating}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td>{p.category}</td>
-                      <td className="admin-td-muted">{p.lastWork}</td>
-                      <td>
-                        <strong style={{color: 'var(--sm-success)'}}>NRS {(p.balance ?? 0).toLocaleString()}</strong>
-                      </td>
-                      <td>
-                        <button className="sm-btn sm-btn-primary" style={{padding: '0.4rem 1rem', fontSize: '0.75rem'}} 
-                          onClick={() => setSelectedProvider(p)}>
-                          Send Payment
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <div style={{marginTop: '2rem'}}>
-            <h3 className="payment-history-title">📜 Recent Payouts</h3>
-            <div className="admin-table-card">
-=======
-            {loadingProviders ? (
-              <div style={{textAlign:'center', padding:'2rem'}}>Loading...</div>
-            ) : (
->>>>>>> a4e8df5d4054650f1f6d7351e4ec0d47a55be2ff
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Provider</th>
-                    <th>Category</th>
-                    <th>Pending Balance</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayProviders.map(p => (
-                    <tr key={p.id}>
-                      <td><strong>{p.name}</strong></td>
-                      <td>{p.category}</td>
-                      <td style={{color:'green', fontWeight:'bold'}}>NRS {p.balance.toLocaleString()}</td>
-                      <td>
-                        <button 
-                          className="sm-btn sm-btn-primary" 
-                          onClick={() => setSelectedProvider(p)}
-                        >
-                          Pay Now
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </main>
-      </div>
-    );
-  }
+  const handlePayProvider = async (providerId) => {
+    if (!confirm("Are you sure you want to process this payment?")) return;
+    try {
+      await adminApi.payProvider(providerId, {});
+      alert("Payment processed successfully!");
+      await fetchData();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to process payment");
+    }
+  };
 
   return (
     <div className="admin-layout animate-fade">
-      <AdminNavbar 
-        onBack={() => setSelectedProvider(null)} 
-        backLabel="← Back" 
-        pageIcon="💸" 
-        pageTitle={`Pay ${selectedProvider.name}`} 
-      />
-      <main className="admin-main">
-        {success ? (
-          <div style={{textAlign:'center', padding:'50px'}}>
-            <h1 style={{color:'green'}}>✅ Payment Successful!</h1>
-            <p>NRS {amount} sent to {selectedProvider.name}</p>
-            <button 
-              className="sm-btn sm-btn-outline" 
-              onClick={() => { 
-                setSuccess(false); 
-                setSelectedProvider(null); 
-                setAmount(""); 
-              }}
+      <AdminNavbar />
+      <main className="sm-container sm-section">
+        <header className="page-header" style={{ marginBottom: "2rem" }}>
+          <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "var(--sm-navy)", margin: 0 }}>
+            Payment Management
+          </h1>
+          <p style={{ color: "var(--sm-text-mid)", marginTop: "0.5rem" }}>
+            Manage provider payouts and view payment history.
+          </p>
+        </header>
+
+        <div style={{ marginBottom: "2rem" }}>
+          <div style={{ display: "flex", borderBottom: "1px solid var(--sm-gray-light)" }}>
+            <button
+              className={`sm-tab ${activeTab === "pending" ? "active" : ""}`}
+              onClick={() => setActiveTab("pending")}
             >
-              Make Another
+              Pending Payments ({pendingProviders.length})
+            </button>
+            <button
+              className={`sm-tab ${activeTab === "history" ? "active" : ""}`}
+              onClick={() => setActiveTab("history")}
+            >
+              Payment History ({paymentHistory.length})
             </button>
           </div>
+        </div>
+
+        {loading ? (
+          <div className="sm-card" style={{ textAlign: "center", padding: "3rem" }}>
+            <p>Loading payment data...</p>
+          </div>
+        ) : activeTab === "pending" ? (
+          <div>
+            {pendingProviders.length === 0 ? (
+              <div className="sm-card" style={{ textAlign: "center", padding: "3rem" }}>
+                <p>No pending payments</p>
+              </div>
+            ) : (
+              <div className="sm-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))", gap: "1rem" }}>
+                {pendingProviders.map((provider) => (
+                  <div key={provider.id} className="sm-card" style={{ padding: "1.5rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
+                      <div>
+                        <h3 style={{ margin: "0 0 0.25rem", color: "var(--sm-navy)" }}>{provider.name}</h3>
+                        <p style={{ margin: 0, color: "var(--sm-text-mid)", fontSize: "0.9rem" }}>{provider.email}</p>
+                      </div>
+                      <span className="sm-badge sm-badge-warning">Pending</span>
+                    </div>
+                    <div style={{ marginBottom: "1rem" }}>
+                      <p style={{ margin: "0 0 0.5rem", fontWeight: 600 }}>
+                        Amount Due: NRS {provider.pending_amount || 0}
+                      </p>
+                      <p style={{ margin: 0, color: "var(--sm-text-light)", fontSize: "0.9rem" }}>
+                        Completed Jobs: {provider.completed_jobs || 0}
+                      </p>
+                    </div>
+                    <button
+                      className="sm-btn sm-btn-success"
+                      onClick={() => handlePayProvider(provider.id)}
+                      style={{ width: "100%" }}
+                    >
+                      Process Payment
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
-          <div style={{maxWidth:'500px', margin:'auto'}}>
-            <div className="payment-form-card sm-card">
-              <h2>Process Payout</h2>
-              <p>
-                <strong>{selectedProvider.name}</strong>
-                <br/>
-                Pending Balance: NRS {selectedProvider.balance.toLocaleString()}
-              </p>
-              
-              {apiError && (
-                <div style={{background:'#fee', color:'red', padding:'0.75rem', marginBottom:'1rem'}}>
-                  {apiError}
-                </div>
-              )}
-              
-              <form onSubmit={handlePay}>
-                <div className="sm-input-group">
-                  <label>Amount (NRS)</label>
-                  <input 
-                    type="number" 
-                    className="sm-input" 
-                    value={amount} 
-                    onChange={(e) => setAmount(e.target.value)} 
-                    required 
-                  />
-                  {errors.amount && <small style={{color:'red'}}>{errors.amount}</small>}
-                </div>
-                
-                <div className="sm-input-group">
-                  <label>Payment Method</label>
-                  <select 
-                    className="sm-input" 
-                    value={method} 
-                    onChange={(e) => setMethod(e.target.value)}
-                  >
-                    {paymentMethods.map(m => (
-                      <option key={m.value} value={m.value}>{m.icon} {m.label}</option>
+          <div>
+            {paymentHistory.length === 0 ? (
+              <div className="sm-card" style={{ textAlign: "center", padding: "3rem" }}>
+                <p>No payment history</p>
+              </div>
+            ) : (
+              <div className="sm-table-container">
+                <table className="sm-table">
+                  <thead>
+                    <tr>
+                      <th>Provider</th>
+                      <th>Amount</th>
+                      <th>Date</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paymentHistory.map((payment) => (
+                      <tr key={payment.id}>
+                        <td>{payment.provider_name}</td>
+                        <td>NRS {payment.amount}</td>
+                        <td>{new Date(payment.created_at).toLocaleDateString()}</td>
+                        <td>
+                          <span className={`sm-badge ${payment.status === "completed" ? "sm-badge-success" : "sm-badge-warning"}`}>
+                            {payment.status}
+                          </span>
+                        </td>
+                      </tr>
                     ))}
-                  </select>
-                </div>
-                
-                <div className="sm-input-group">
-                  <label>Note (Optional)</label>
-                  <textarea 
-                    className="sm-input" 
-                    rows="3" 
-                    value={note} 
-                    onChange={(e) => setNote(e.target.value)} 
-                  />
-                </div>
-                
-                <button 
-                  className="sm-btn sm-btn-primary" 
-                  style={{width:'100%'}} 
-                  type="submit" 
-                  disabled={loading}
-                >
-                  {loading ? "Processing..." : `Pay NRS ${amount || '0'}`}
-                </button>
-              </form>
-            </div>
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
       </main>
     </div>
   );
 }
+    

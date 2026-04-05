@@ -13,8 +13,7 @@ function getGreeting() {
 export default function AdminNavbar({
   backTo,
   onBack,
-  backLabel = "← Back",
-  pageIcon,
+  backLabel = "Back",
   pageTitle,
   rightSlot,
   showLogout = false,
@@ -31,7 +30,6 @@ export default function AdminNavbar({
             <button className="admin-back-btn" onClick={() => onBack ? onBack() : navigate(backTo)}>
               {backLabel}
             </button>
-            {pageIcon && <span className="admin-logo-icon">{pageIcon}</span>}
             {pageTitle && (
               <span className="admin-brand-text">{pageTitle}</span>
             )}

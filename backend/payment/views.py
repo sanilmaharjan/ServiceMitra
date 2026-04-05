@@ -2,7 +2,7 @@ import time
 import hmac
 import hashlib
 import base64
-import requests
+# import requests
 from decimal import Decimal
 from django.utils import timezone
 from django.http import JsonResponse, HttpResponseRedirect

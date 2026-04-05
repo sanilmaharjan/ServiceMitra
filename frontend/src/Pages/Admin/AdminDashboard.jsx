@@ -79,10 +79,11 @@ export default function AdminDashboard() {
   };
 
   const cards = [
-    { title: "Total Users", value: animatedStats.users, icon: "👥", route: "/admin/users", badge: "View All" },
-    { title: "Service Providers", value: animatedStats.serviceProviders, icon: "🛠️", route: "/admin/service-providers", badge: "View All" },
-    { title: "Pending KYC", value: animatedStats.pendingKYC, icon: "📋", route: "/admin/kyc", badge: "Action Needed", urgent: true },
-    { title: "Pending Payouts", value: animatedStats.pendingPayments, icon: "💳", route: "/admin/payments", badge: "Coming Soon", urgent: false },
+    { title: "Total Users", value: animatedStats.users, route: "/admin/users", badge: "View All" },
+    { title: "Service Providers", value: animatedStats.serviceProviders, route: "/admin/service-providers", badge: "View All" },
+    { title: "Categories", value: "Manage", route: "/admin/categories", badge: "Edit" },
+    { title: "Pending Payouts", value: animatedStats.pendingPayments, route: "/admin/payments", badge: "Process" },
+    { title: "Pending KYC", value: animatedStats.pendingKYC, route: "/admin/kyc", badge: "Action Needed", urgent: true },
   ];
 
   if (loading) {
@@ -115,7 +116,7 @@ export default function AdminDashboard() {
               style={{cursor: card.route ? 'pointer' : 'default', padding: '1.75rem', animationDelay: `${i * 0.1}s`}}
             >
               <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '1.25rem'}}>
-                <div style={{width: '48px', height: '48px', background: 'var(--sm-gray-light)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem'}}>{card.icon}</div>
+                <div style={{width: '48px', height: '48px', background: 'var(--sm-gray-light)', borderRadius: '12px'}} />
                 {card.urgent && <span className="sm-badge sm-badge-danger">Urgent</span>}
               </div>
               <div style={{fontSize: '2.5rem', fontWeight: 900, color: 'var(--sm-navy)', marginBottom: '0.25rem'}}>{card.value}</div>

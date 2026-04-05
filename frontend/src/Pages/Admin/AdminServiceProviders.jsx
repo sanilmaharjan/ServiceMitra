@@ -60,7 +60,7 @@ return (
 
 <div className="admin-layout animate-fade">
 
-<AdminNavbar backTo="/admin" pageIcon="🛠️" pageTitle="Service Providers"/>
+<AdminNavbar backTo="/admin" pageTitle="Service Providers"/>
 
 <main className="sm-container sm-section">
 

@@ -21,7 +21,7 @@ export default function UserNavbar({ userName = "User", backTo = "" }) {
       <div className="u-navbar-brand">
         {backTo && (
           <button className="u-back-btn" onClick={() => navigate(backTo)}>
-            ← Back
+            Back
           </button>
         )}
         <span className="u-brand-icon"></span>
@@ -34,7 +34,6 @@ export default function UserNavbar({ userName = "User", backTo = "" }) {
 
       <div className="u-navbar-right">
         <div className="u-greeting">
-          <span className="u-greeting-emoji">{greeting.emoji}</span>
           <span className="u-greeting-text">{greeting.text}, {firstName}!</span>
         </div>
         <div className="u-nav-actions" style={{display: 'flex', gap: '0.75rem'}}>
